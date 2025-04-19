@@ -1,0 +1,12 @@
+version: "2"
+authtoken: 2sIhoyx7sTqUHlxvz94pHPqeMxw_7Zu87KtLFrKT5hcDjcxmp
+tunnels:
+  react:
+    proto: http
+    addr: 3000
+  nodejs:
+    proto: http
+    addr: 5000
+  geoserver:
+    proto: http
+    addr: 8080

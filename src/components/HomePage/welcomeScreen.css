@@ -1,0 +1,378 @@
+:root {
+    --primary-color: #d4af37;
+    --primary-light: #e6c45c;
+    --text-light: #f8f9fa;
+    --text-dark: #212529;
+    --bg-dark: #212429;
+    --bg-darker: #1a1c21;
+    --bg-light: #f8f9fa;
+    --transition-speed: 0.3s;
+  }
+  
+  body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: background-color var(--transition-speed), color var(--transition-speed);
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    overflow-x: hidden;
+  }
+  
+  body.light-mode {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+  }
+  
+  /* ===== شريط التنقل ===== */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 4rem;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transition: background-color 0.5s, box-shadow 0.5s;
+    background-color: rgba(33, 36, 41, 0.95);
+    box-sizing: border-box;
+  }
+  
+  .light-mode .navbar {
+    background-color: rgba(248, 249, 250, 0.95);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .navbar.scrolled {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+  
+  .nav-link {
+    color: var(--text-light);
+    text-decoration: none;
+    position: relative;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  
+  .light-mode .nav-link {
+    color: var(--text-dark);
+  }
+  
+  .nav-link:hover {
+    color: var(--primary-color);
+  }
+  
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    transition: width 0.3s;
+  }
+  
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  
+  .mode-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 1.5rem;
+    transition: color 0.3s, transform 0.3s;
+  }
+  
+  .light-mode .mode-toggle {
+    color: var(--text-dark);
+  }
+  
+  .mode-toggle:hover {
+    color: var(--primary-color);
+    transform: rotate(15deg);
+  }
+  
+  /* ===== الشاشة الرئيسية ===== */
+  .screen1 {
+    background-color: var(--bg-darker);
+    display: flex;
+    justify-content: space-between;
+    height: 100vh;
+    padding-top: 80px;
+    position: relative;
+    overflow: hidden;
+    align-items: center;
+  }
+  
+  .light-mode .screen1 {
+    background-color: var(--bg-light);
+  }
+  
+  .supTitle1 {
+    padding-left: 6rem;
+    z-index: 2;
+    animation: fadeInLeft 1s ease-out;
+  }
+  
+  .title1 {
+    font-size: 4.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+  }
+  
+  .title1 span {
+    display: block;
+    font-size: 2.5rem;
+    color: var(--text-light);
+    opacity: 0.9;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+  
+  .light-mode .title1 span {
+    color: var(--text-dark);
+  }
+  
+  .subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    max-width: 500px;
+    line-height: 1.6;
+    opacity: 0.8;
+  }
+  
+  .mainButton {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 0.8rem 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .mainButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: all 0.4s ease;
+    z-index: -1;
+  }
+  
+  .mainButton:hover {
+    color: var(--bg-darker);
+  }
+  
+  .light-mode .mainButton:hover {
+    color: var(--bg-light);
+  }
+  
+  .mainButton:hover::before {
+    left: 0;
+  }
+  
+  .laptop-map-container {
+    position: relative;
+    width: 55%;
+    height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInRight 1s ease-out;
+  }
+  
+  .laptop-map {
+    width: 90%;
+    height: auto;
+    position: relative;
+    z-index: 2;
+    border-radius: 10px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+    transition: transform 0.5s;
+  }
+  
+  .laptop-map:hover {
+    transform: scale(1.03) rotate(-1deg);
+  }
+  
+  .light-mode .laptop-map {
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* ===== خلفية الشبكة والعناصر العائمة ===== */
+  .background-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(rgba(212, 175, 55, 0.05) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(212, 175, 55, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+    z-index: 1;
+  }
+  
+  .floating-elements {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  .floating-item {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    opacity: 0.1;
+    filter: blur(1px);
+    animation: float 10s infinite ease-in-out;
+  }
+  
+  /* ===== الأنيميشن ===== */
+  @keyframes fadeInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes fadeInRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translate(0, 0);
+    }
+    50% {
+      transform: translate(15px, 15px);
+    }
+    100% {
+      transform: translate(0, 0);
+    }
+  }
+  
+  /* ===== التوافق مع الأجهزة المختلفة ===== */
+  @media (max-width: 1200px) {
+    .title1 {
+      font-size: 3.5rem;
+    }
+    
+    .title1 span {
+      font-size: 2rem;
+    }
+    
+    .supTitle1 {
+      padding-left: 3rem;
+    }
+  }
+  
+  @media (max-width: 992px) {
+    .navbar {
+      padding: 1rem 2rem;
+    }
+    
+    .screen1 {
+      flex-direction: column;
+      padding-top: 100px;
+    }
+    
+    .supTitle1 {
+      padding: 2rem;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .title1 {
+      font-size: 3rem;
+    }
+    
+    .laptop-map-container {
+      width: 100%;
+      height: auto;
+      margin-top: 2rem;
+    }
+    
+    .laptop-map {
+      width: 80%;
+      margin: 0 auto;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .nav-links {
+      display: none; /* يمكنك تنفيذ قائمة منبثقة هنا لاحقاً */
+    }
+    
+    .title1 {
+      font-size: 2.5rem;
+    }
+    
+    .title1 span {
+      font-size: 1.5rem;
+    }
+    
+    .subtitle {
+      font-size: 1rem;
+    }
+    
+    .mainButton {
+      font-size: 1rem;
+      padding: 0.7rem 1.5rem;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .title1 {
+      font-size: 2rem;
+    }
+    
+    .title1 span {
+      font-size: 1.2rem;
+    }
+  }
+  

@@ -1,0 +1,38 @@
+
+.barContainer{
+    border: rgb(58, 57, 57) solid;
+    /* margin-top: 1%;
+    margin-bottom: 5%; */
+    background-color: rgb(58, 57, 57);
+    /* position: fixed; */
+    width: 100%;
+
+}
+.bar{
+    margin: auto;/*margin-left: 35%; */
+    margin-top: 0.5%;
+    margin-bottom: 0.5%;
+width: 400px;
+display: flex;
+justify-content: space-between;
+list-style-type: none;
+}
+
+.bar-link{
+    text-decoration: none;
+    color:black ;
+
+}
+
+.bar li{
+background-color: white;
+border-radius: 20px;
+padding: 3%;
+/* height: 5%; */
+}
+
+.bar li:hover{
+    background-color: rgb(82, 70, 126);
+    
+
+}

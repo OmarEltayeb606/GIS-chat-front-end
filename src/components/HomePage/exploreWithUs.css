@@ -1,0 +1,30 @@
+.component2{
+    display: flex;
+    align-items: center;
+    background-color: rgb(53, 56, 63);
+    justify-content: space-between;
+    height: 100vh;
+}
+
+.titleOfSection2{
+    font-size: 50px;
+    color: white;
+}
+
+.supTitleOfSection2{
+    color: white;
+    font-size: 20px;
+    padding-left: 50px;
+}
+
+.textContainer{
+    padding-right: 250px;
+
+}
+
+.vectorImg{
+    width: 37%;
+    height: 70%;
+    border-radius: 20px;
+    margin-left: 30px;
+}

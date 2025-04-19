@@ -1,0 +1,56 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* ارتفاع الشاشة بالكامل */
+  margin: 0;
+  overflow: hidden; /* منع التمرير داخل الحاوية */
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  justify-content: center;
+  background-color: #fff;
+  z-index: 10; /* التأكد من أن الأزرار فوق الصورة */
+}
+
+.controls input,
+.controls button {
+  padding: 8px;
+  font-size: 16px;
+}
+
+.controls button {
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.imgview-border {
+  flex: 1; /* يأخذ المساحة المتبقية */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  overflow: hidden; /* منع أي تمرير داخلي غير ضروري */
+}
+
+.imgview-border img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain; /* ضمان ظهور الصورة كاملة */
+  cursor: grab;
+}
+
+.imgview-border p {
+  color: #888;
+  font-size: 16px;
+}

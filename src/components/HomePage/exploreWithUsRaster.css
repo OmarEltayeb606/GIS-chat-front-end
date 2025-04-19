@@ -1,0 +1,30 @@
+.component3{
+    display: flex;
+    align-items: center;
+    background-color: rgb(33, 36, 42);
+    justify-content: space-between;
+    height: 100vh;
+}
+
+.titleOfSection3{
+    font-size: 50px;
+    color: white;
+}
+
+.supTitleOfSection3{
+    color: white;
+    font-size: 20px;
+    padding-right: 50px;
+}
+
+.textContainer{
+    padding-left: 250px;
+
+}
+
+.rasterImg{
+    width: 37%;
+    height: 70%;
+    border-radius: 20px;
+    margin-right: 30px;
+}
