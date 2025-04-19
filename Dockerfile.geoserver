@@ -1,5 +1,0 @@
-FROM docker.osgeo.org/geoserver:2.26.2
-
-EXPOSE 8080
-
-CMD ["catalina.sh", "run"]

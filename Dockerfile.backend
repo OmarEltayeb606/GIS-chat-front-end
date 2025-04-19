@@ -1,8 +1,0 @@
-FROM node:16
-WORKDIR /app
-COPY package.backend.json ./package.json
-RUN npm install
-RUN apt-get update && apt-get install -y gdal-bin
-COPY . .
-EXPOSE 5000
-CMD ["npm", "start"]
