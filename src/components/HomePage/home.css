@@ -1,0 +1,132 @@
+/* home.css - Professionally redesigned */
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.explore-sections {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 20px;
+  background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+}
+
+.section-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 40px;
+}
+
+.cta-section {
+  width: 100%;
+  max-width: 1200px;
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #3B82F6 0%, #1E3A8A 100%);
+  border-radius: 16px;
+  color: white;
+  margin: 40px 0 60px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.cta-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.cta-section p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  opacity: 0.9;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta-primary, .cta-secondary {
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.cta-primary {
+  background: white;
+  color: #1E3A8A;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cta-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.cta-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+}
+
+.cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .cta-section {
+    padding: 60px 20px;
+  }
+  
+  .cta-section h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .explore-sections {
+    padding: 40px 15px;
+  }
+  
+  .cta-section {
+    padding: 40px 20px;
+    margin: 20px 0 40px;
+  }
+  
+  .cta-section h2 {
+    font-size: 1.8rem;
+  }
+  
+  .cta-section p {
+    font-size: 1rem;
+  }
+  
+  .cta-primary, .cta-secondary {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
