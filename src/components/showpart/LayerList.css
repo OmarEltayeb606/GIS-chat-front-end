@@ -1,0 +1,90 @@
+.layer-list {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 250px;
+  max-height: 80vh;
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 10px;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.layer-list h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.layer-items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.layer-item {
+  padding: 8px;
+  background: #f9f9f9;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  cursor: grab;
+}
+
+.layer-item-content {
+  display: flex;
+  align-items: center;
+}
+
+.layer-visibility-checkbox {
+  margin-right: 10px;
+}
+
+.layer-name {
+  flex-grow: 1;
+  font-size: 14px;
+}
+
+.layer-color-picker {
+  width: 30px;
+  height: 20px;
+  padding: 0;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.layer-opacity-slider {
+  width: 60px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.zoom-to-layer-button,
+.delete-layer-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  margin-left: 5px;
+}
+
+.zoom-to-layer-button i,
+.delete-layer-button i {
+  font-size: 16px;
+  color: #007bff;
+}
+
+.zoom-to-layer-button:hover i,
+.delete-layer-button:hover i {
+  color: #0056b3;
+}
+
+.delete-layer-button i {
+  color: #dc3545;
+}
+
+.delete-layer-button:hover i {
+  color: #c82333;
+}

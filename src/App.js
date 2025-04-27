@@ -1,14 +1,8 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './components/HomePage/home';
-import MapView from './components/showpart/mapview';
-import ImgView from './components/showpart/imgView/imgview';
-import About from './components/about/about';
-import AI from './components/AI/ai';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/showpart/navbar';
-import ExploreWithUsRaster from './components/HomePage/exploreWithUsRaster';
-import ExploreWithUsVector from './components/HomePage/exploreWithUsVector';
-import WelcomeScreen from './components/HomePage/welcomeScreen';
+import MapView from './components/showpart/mapview';
+import './App.css';
 
 function App() {
   return (
@@ -16,14 +10,11 @@ function App() {
       <div className="App">
         <Navbar />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/welcome" element={<WelcomeScreen />} />
           <Route path="/mapView" element={<MapView />} />
-          <Route path="/imgView" element={<ImgView />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/ai" element={<AI />} />
-          <Route path="/explore-raster" element={<ExploreWithUsRaster />} />
-          <Route path="/explore-vector" element={<ExploreWithUsVector />} />
+          <Route path="/" element={<div>الرئيسية</div>} />
+          <Route path="/imgView" element={<div>عرض الصور</div>} />
+          <Route path="/ai" element={<div>الذكاء الاصطناعي</div>} />
+          <Route path="/about" element={<div>حول</div>} />
         </Routes>
       </div>
     </Router>
