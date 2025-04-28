@@ -9,18 +9,25 @@ import './MapView.css';
 import { debounce } from 'lodash';
 import { FaLayerGroup } from 'react-icons/fa';
 
-// مكون لضبط حدود الخريطة تلقائيًا
+// مكون لضبط حدود الخريطة تلقائيًا عند التحميل الأول فقط
 const FitBounds = ({ layers }) => {
   const map = useMap();
+  const hasRun = useRef(false); // للتأكد من أن fitBounds يُنفذ مرة واحدة فقط
+
   useEffect(() => {
+    if (hasRun.current) return; // منع إعادة التنفيذ
+
     const validBounds = layers
       .filter((layer) => layer.visible && layer.bounds)
       .map((layer) => layer.bounds);
+
     if (validBounds.length > 0) {
-      console.log('Fitting bounds:', JSON.stringify(validBounds, null, 2));
+      console.log('Initial fitting bounds:', JSON.stringify(validBounds, null, 2));
       map.fitBounds(validBounds);
+      hasRun.current = true; // تعليم أن التنفيذ تم
     }
-  }, [layers, map]);
+  }, [map]); // الاعتماد على map فقط، وليس على layers
+
   return null;
 };
 
@@ -60,10 +67,18 @@ const MapView = () => {
     };
   }, []); // إزالة mapRef.current من التبعيات وأي تبعيات أخرى غير ضرورية
 
-  const handleAddLayer = useCallback((newLayer) => {
-    console.log('Adding Layer:', JSON.stringify(newLayer, null, 2));
+  const handleAddLayer = useCallback((newLayers) => {
+    console.log('Adding Layers:', JSON.stringify(newLayers, null, 2));
     setLayers((prev) => {
-      const updatedLayers = [...prev, { ...newLayer, color: '#ff7800', opacity: 0.65 }];
+      const layersToAdd = Array.isArray(newLayers) ? newLayers : [newLayers];
+      const updatedLayers = [
+        ...prev,
+        ...layersToAdd.map((layer) => ({
+          ...layer,
+          color: '#ff7800',
+          opacity: 0.65,
+        })),
+      ];
       console.log('Updated Layers:', JSON.stringify(updatedLayers, null, 2));
       return updatedLayers;
     });
@@ -118,7 +133,7 @@ const MapView = () => {
     } catch (e) {
       alert(`خطأ أثناء التكبير على الطبقة: ${e.message}`);
     }
-  }, [layers, isMapReady]); // إضافة التبعيات المفقودة
+  }, [layers, isMapReady]);
 
   const handleDeleteLayer = useCallback((layerId) => {
     console.log(`Deleting layer: ${layerId}`);
@@ -158,7 +173,6 @@ const MapView = () => {
       return;
     }
     console.log(`Tool selected: ${tool}`);
-    // لم يعد هناك أداة قياس، يمكن إضافة أدوات أخرى لاحقًا إذا لزم الأمر
   }, [isMapReady]);
 
   const handleToggleBaseMap = useCallback(() => {
@@ -217,8 +231,8 @@ const MapView = () => {
       {showToolBar && (
         <ToolBar
           onToolSelect={handleToolSelect}
-          measurements={[]} // لم يعد هناك قياسات
-          onDeleteMeasurement={() => {}} // دالة فارغة للحفاظ على التوافق
+          measurements={[]}
+          onDeleteMeasurement={() => {}}
         />
       )}
       <div className="toggle-buttons toggle-buttons-left">
