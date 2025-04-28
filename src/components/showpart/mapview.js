@@ -2,14 +2,12 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { MapContainer, TileLayer, GeoJSON, ImageOverlay, useMap, FeatureGroup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet-measure/dist/leaflet-measure.css';
-import 'leaflet-measure';
 import AddLayerButton from './AddLayerButton';
 import LayerList from './LayerList';
 import ToolBar from './toolbar';
 import './MapView.css';
 import { debounce } from 'lodash';
-import { FaLayerGroup, FaRulerCombined } from 'react-icons/fa';
+import { FaLayerGroup } from 'react-icons/fa';
 
 // مكون لضبط حدود الخريطة تلقائيًا
 const FitBounds = ({ layers }) => {
@@ -33,15 +31,9 @@ const MapView = () => {
   });
   const [showBaseMap, setShowBaseMap] = useState(true);
   const [isMapReady, setIsMapReady] = useState(false);
-  const [measurements, setMeasurements] = useState([]);
   const [showLayerList, setShowLayerList] = useState(false);
   const [showToolBar, setShowToolBar] = useState(false);
-  const [isMeasuring, setIsMeasuring] = useState(false);
-  const [isDraggingEnabled, setIsDraggingEnabled] = useState(true);
   const mapRef = useRef(null);
-  const measureControlRef = useRef(null);
-  const measurementIdRef = useRef(0);
-  const markersRef = useRef([]);
 
   useEffect(() => {
     sessionStorage.setItem('mapLayers', JSON.stringify(layers));
@@ -58,28 +50,15 @@ const MapView = () => {
       console.log('Map clicked:', e.latlng);
       e.originalEvent.preventDefault();
       e.originalEvent.stopPropagation();
-      if (!isMeasuring) {
-        window.scrollTo(0, 0);
-      }
-    };
-
-    const onFocus = () => {
-      if (isMeasuring) {
-        const center = map.getCenter();
-        const zoom = map.getZoom();
-        map.setView(center, zoom);
-        console.log('Map focused, center restored:', center);
-      }
+      window.scrollTo(0, 0);
     };
 
     map.on('click', onClick);
-    map.on('focus', onFocus);
 
     return () => {
       map.off('click', onClick);
-      map.off('focus', onFocus);
     };
-  }, [isMeasuring]); // إزالة mapRef.current من التبعيات
+  }, []); // إزالة mapRef.current من التبعيات وأي تبعيات أخرى غير ضرورية
 
   const handleAddLayer = useCallback((newLayer) => {
     console.log('Adding Layer:', JSON.stringify(newLayer, null, 2));
@@ -172,315 +151,15 @@ const MapView = () => {
     debouncedChangeOpacity(layerId, opacity);
   }, [debouncedChangeOpacity]);
 
-  const handleDeleteMeasurement = useCallback((measurementId) => {
-    console.log(`Deleting measurement: ${measurementId}`);
-    setMeasurements((prev) => prev.filter((m) => m.id !== measurementId));
-    if (measureControlRef.current && measureControlRef.current._layers) {
-      const layer = measureControlRef.current._layers[measurementId];
-      if (layer) {
-        mapRef.current.removeLayer(layer);
-      }
-    }
-    markersRef.current.forEach((marker) => {
-      if (marker.measurementId === measurementId) {
-        mapRef.current.removeLayer(marker);
-      }
-    });
-    markersRef.current = markersRef.current.filter((marker) => marker.measurementId !== measurementId);
-  }, []);
-
-  const handleRemoveLastPoint = useCallback(() => {
-    console.log('Attempting to remove last point...');
-    if (!isMeasuring || measurements.length === 0) {
-      console.log('Cannot remove last point: Not measuring or no measurements available.');
-      return;
-    }
-
-    const lastMeasurement = measurements[measurements.length - 1];
-    if (!lastMeasurement || !lastMeasurement.layer) {
-      console.log('Cannot remove last point: Last measurement or its layer is undefined.');
-      return;
-    }
-
-    const latlngs = lastMeasurement.layer.getLatLngs();
-    if (latlngs.length === 0) {
-      console.log('Cannot remove last point: No points in the last measurement.');
-      return;
-    }
-
-    // إزالة آخر نقطة من القياس
-    latlngs.pop();
-    lastMeasurement.layer.setLatLngs(latlngs);
-    console.log('Last point removed from latlngs:', latlngs);
-
-    // تحديث حالة measurements
-    setMeasurements((prev) =>
-      prev.map((m) =>
-        m.id === lastMeasurement.id
-          ? { ...m, points: latlngs.map((p) => ({ lat: p.lat, lng: p.lng })) }
-          : m
-      )
-    );
-
-    // إزالة الماركر المرتبط بآخر نقطة
-    const lastMarker = markersRef.current[markersRef.current.length - 1];
-    if (lastMarker) {
-      mapRef.current.removeLayer(lastMarker);
-      markersRef.current.pop();
-      console.log('Last marker removed from map.');
-    } else {
-      console.log('No marker found to remove.');
-    }
-
-    console.log('Last point removed from measurement:', lastMeasurement.id);
-  }, [isMeasuring, measurements]);
-
-  const handleUpdateUnits = useCallback((unitOptions) => {
-    if (measureControlRef.current) {
-      console.log('Updating units:', unitOptions);
-      measureControlRef.current.options.primaryLengthUnit = unitOptions.primaryLengthUnit || 'meters';
-      measureControlRef.current.options.secondaryLengthUnit = unitOptions.secondaryLengthUnit || 'kilometers';
-      measureControlRef.current.options.primaryAreaUnit = unitOptions.primaryAreaUnit || 'sqmeters';
-      measureControlRef.current.options.secondaryAreaUnit = unitOptions.secondaryAreaUnit || 'hectares';
-      measureControlRef.current._updateMeasureResults();
-    }
-  }, []);
-
-  const toggleDragging = useCallback(() => {
-    if (!mapRef.current) return;
-    const map = mapRef.current;
-    setIsDraggingEnabled((prev) => {
-      const newState = !prev;
-      if (newState) {
-        map.dragging.enable();
-        map.doubleClickZoom.enable();
-        map.scrollWheelZoom.enable();
-        map.boxZoom.enable();
-        map.keyboard.enable();
-        console.log('Dragging and zooming enabled');
-      } else {
-        map.dragging.disable();
-        map.doubleClickZoom.disable();
-        map.scrollWheelZoom.disable();
-        map.boxZoom.disable();
-        map.keyboard.disable();
-        console.log('Dragging and zooming disabled');
-      }
-      return newState;
-    });
-  }, [isDraggingEnabled]); // إضافة isDraggingEnabled كتبعية
-
   const handleToolSelect = useCallback((tool) => {
     if (!isMapReady || !mapRef.current) {
       console.error('Map not initialized');
       console.log('خطأ: الخريطة لم تُهيأ بعد. انتظر قليلاً ثم حاول مرة أخرى.');
       return;
     }
-    const map = mapRef.current;
-
     console.log(`Tool selected: ${tool}`);
-
-    if (tool === 'measure') {
-      if (!measureControlRef.current) {
-        try {
-          setIsMeasuring(true);
-          setIsDraggingEnabled(false);
-          map.dragging.disable();
-          map.doubleClickZoom.disable();
-          map.scrollWheelZoom.disable();
-          map.boxZoom.disable();
-          map.keyboard.disable();
-
-          // إضافة رسالة توضيحية مع تعليمات استخدام Ctrl + Z
-          alert('استخدم زر الفأرة الوسطى (بكرة الفأرة) لتحريك الخريطة أثناء القياس، أو استخدم زر "تفعيل السحب" في النافذة المنبثقة. اضغط Ctrl + Z للتراجع عن آخر نقطة.');
-
-          measureControlRef.current = L.control.measure({
-            position: 'topright',
-            primaryLengthUnit: 'meters',
-            secondaryLengthUnit: 'kilometers',
-            primaryAreaUnit: 'sqmeters',
-            secondaryAreaUnit: 'hectares',
-            activeColor: '#ff7800',
-            completedColor: '#00ff00',
-            captureZIndex: 10000,
-            fitBounds: false,
-            showRemovePointButton: true,
-            measureMode: 'both',
-            units: {
-              meters: { factor: 1, display: 'أمتار', decimals: 2 },
-              kilometers: { factor: 0.001, display: 'كيلومترات', decimals: 2 },
-              feet: { factor: 3.28084, display: 'أقدام', decimals: 2 },
-              miles: { factor: 0.000621371, display: 'أميال', decimals: 2 },
-              sqmeters: { factor: 1, display: 'متر مربع', decimals: 2 },
-              hectares: { factor: 0.0001, display: 'هكتارات', decimals: 2 },
-              acres: { factor: 0.000247105, display: 'أفدنة', decimals: 2 },
-            },
-            showUnitControl: false,
-            onMiddleClick: () => {
-              console.log('Middle click detected, toggling dragging...');
-              toggleDragging();
-            },
-            popupContent: function (layer) {
-              const distance = layer.getMeasure ? layer.getMeasure() : null;
-              const area = layer.getArea ? layer.getArea() : null;
-              const perimeter = layer.getPerimeter ? layer.getPerimeter() : null;
-              const points = layer.getLatLngs ? layer.getLatLngs() : [];
-              const measurementId = `measure-${measurementIdRef.current++}`;
-
-              setMeasurements((prev) => [
-                ...prev,
-                {
-                  id: measurementId,
-                  distance,
-                  area,
-                  perimeter,
-                  points: points.map((p) => ({ lat: p.lat, lng: p.lng })),
-                  layer,
-                },
-              ]);
-
-              // إضافة ماركرز مرئية لكل نقطة
-              points.forEach((point, index) => {
-                const marker = L.marker(point, { draggable: true }).addTo(map);
-                marker.measurementId = measurementId;
-                marker.pointIndex = index;
-                markersRef.current.push(marker);
-
-                marker.on('dragend', (event) => {
-                  const newLatLng = event.target.getLatLng();
-                  const latlngs = layer.getLatLngs();
-                  latlngs[index] = newLatLng;
-                  layer.setLatLngs(latlngs);
-                  setMeasurements((prev) =>
-                    prev.map((m) =>
-                      m.id === measurementId
-                        ? { ...m, points: latlngs.map((p) => ({ lat: p.lat, lng: p.lng })) }
-                        : m
-                    )
-                  );
-                  console.log(`Point ${index} moved to:`, newLatLng);
-                });
-              });
-
-              let html = `
-                <div style="max-height: 200px; overflow-y: auto; font-size: 14px;">
-                  <h4>نتائج القياس</h4>
-              `;
-              if (distance) {
-                html += `<p>الطول: ${distance.toFixed(2)} ${this.options.primaryLengthUnit}</p>`;
-              }
-              if (area) {
-                html += `<p>المساحة: ${area.toFixed(2)} ${this.options.primaryAreaUnit}</p>`;
-              }
-              if (perimeter) {
-                html += `<p>المحيط: ${perimeter.toFixed(2)} ${this.options.primaryLengthUnit}</p>`;
-              }
-              html += `
-                  <h4>النقاط</h4>
-                  <ul style="padding: 0; list-style: none;">
-              `;
-              points.forEach((point, index) => {
-                html += `
-                  <li style="margin-bottom: 5px;">
-                    نقطة ${index + 1}: (${point.lng.toFixed(6)}, ${point.lat.toFixed(6)})
-                    <button onclick="window.dispatchEvent(new CustomEvent('removePoint', { detail: { measurementId: '${measurementId}', pointIndex: ${index} } }))" style="margin-left: 10px; color: red;">حذف</button>
-                  </li>
-                `;
-              });
-              html += `
-                  </ul>
-                  <button onclick="window.dispatchEvent(new CustomEvent('deleteMeasurement', { detail: '${measurementId}' }))" style="margin-top: 10px; color: red;">حذف القياس</button>
-                  <button onclick="window.dispatchEvent(new CustomEvent('toggleDragging', {}))" style="margin-top: 10px; color: blue;">${isDraggingEnabled ? 'تعطيل السحب' : 'تفعيل السحب'}</button>
-                </div>
-              `;
-              console.log('Measurement added:', { id: measurementId, distance, area, perimeter, points });
-              return html;
-            },
-          }).addTo(map);
-
-          map.on('measureclick', (e) => {
-            const center = map.getCenter();
-            const zoom = map.getZoom();
-            console.log('Measure click:', e.latlng);
-            map.setView(center, zoom);
-          });
-
-          const handleKeyDown = (e) => {
-            if (e.ctrlKey && e.key === 'z') {
-              console.log('Ctrl + Z pressed, calling handleRemoveLastPoint...');
-              handleRemoveLastPoint();
-            }
-          };
-          window.addEventListener('keydown', handleKeyDown);
-
-          window.addEventListener('removePoint', (e) => {
-            console.log('removePoint event triggered:', e.detail);
-            const { measurementId, pointIndex } = e.detail;
-            const measurement = measurements.find((m) => m.id === measurementId);
-            if (measurement && measurement.layer) {
-              const latlngs = measurement.layer.getLatLngs();
-              if (latlngs[pointIndex]) {
-                latlngs.splice(pointIndex, 1);
-                measurement.layer.setLatLngs(latlngs);
-                setMeasurements((prev) =>
-                  prev.map((m) =>
-                    m.id === measurementId
-                      ? { ...m, points: latlngs.map((p) => ({ lat: p.lat, lng: p.lng })) }
-                      : m
-                  )
-                );
-                const marker = markersRef.current.find(
-                  (m) => m.measurementId === measurementId && m.pointIndex === pointIndex
-                );
-                if (marker) {
-                  map.removeLayer(marker);
-                  markersRef.current = markersRef.current.filter(
-                    (m) => !(m.measurementId === measurementId && m.pointIndex === pointIndex)
-                  );
-                }
-                console.log(`Point ${pointIndex} removed from measurement ${measurementId}`);
-              }
-            }
-          });
-
-          window.addEventListener('toggleDragging', () => {
-            toggleDragging();
-          });
-
-          window.addEventListener('deleteMeasurement', (e) => {
-            console.log('deleteMeasurement event triggered:', e.detail);
-            const measurementId = e.detail;
-            handleDeleteMeasurement(measurementId);
-          });
-
-          console.log('Measure control added');
-        } catch (e) {
-          console.error(`Error adding measure control: ${e.message}`);
-          console.log(`خطأ في تفعيل أداة القياس: ${e.message}`);
-        }
-      } else {
-        setIsMeasuring(false);
-        setIsDraggingEnabled(true);
-        map.dragging.enable();
-        map.doubleClickZoom.enable();
-        map.scrollWheelZoom.enable();
-        map.boxZoom.enable();
-        map.keyboard.enable();
-
-        markersRef.current.forEach((marker) => map.removeLayer(marker));
-        markersRef.current = [];
-
-        measureControlRef.current.remove();
-        measureControlRef.current = null;
-        map.off('measureclick');
-        window.removeEventListener('removePoint', () => {});
-        window.removeEventListener('toggleDragging', () => {});
-        window.removeEventListener('deleteMeasurement', () => {});
-        window.removeEventListener('keydown', () => {});
-        console.log('Measure control removed');
-      }
-    }
-  }, [isMapReady, measurements, handleDeleteMeasurement, handleRemoveLastPoint, toggleDragging]);
+    // لم يعد هناك أداة قياس، يمكن إضافة أدوات أخرى لاحقًا إذا لزم الأمر
+  }, [isMapReady]);
 
   const handleToggleBaseMap = useCallback(() => {
     setShowBaseMap((prev) => !prev);
@@ -538,9 +217,8 @@ const MapView = () => {
       {showToolBar && (
         <ToolBar
           onToolSelect={handleToolSelect}
-          onUpdateUnits={handleUpdateUnits}
-          measurements={measurements}
-          onDeleteMeasurement={handleDeleteMeasurement}
+          measurements={[]} // لم يعد هناك قياسات
+          onDeleteMeasurement={() => {}} // دالة فارغة للحفاظ على التوافق
         />
       )}
       <div className="toggle-buttons toggle-buttons-left">
@@ -550,15 +228,6 @@ const MapView = () => {
           title={showLayerList ? 'إخفاء الطبقات' : 'إظهار الطبقات'}
         >
           <FaLayerGroup />
-        </button>
-      </div>
-      <div className="toggle-buttons toggle-buttons-right">
-        <button
-          className="toggle-button"
-          onClick={() => setShowToolBar((prev) => !prev)}
-          title={showToolBar ? 'إخفاء القياسات' : 'إظهار القياسات'}
-        >
-          <FaRulerCombined />
         </button>
       </div>
       <MapContainer
