@@ -1,18 +1,76 @@
 .map-view {
-  position: relative;
+  position: fixed;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 60px);
+  top: 60px;
+  left: 0;
+  overflow: hidden;
 }
 
 .map-view .leaflet-container {
   width: 100%;
   height: 100%;
   z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .map-view .toolbar {
   position: absolute;
-  top: 10px;
+  top: 100px; /* أسفل أزرار التبديل وأزرار التكبير/التصغير */
   right: 10px;
-  z-index: 1000;
+  z-index: 900;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 250px;
+}
+
+/* إزالة التصميم القديم لـ layer-list من MapView.css لأنه تم نقله إلى LayerList.css */
+/* .map-view .layer-list { ... } */
+
+.toggle-buttons-left {
+  position: absolute;
+  top: 80px; /* أسفل أزرار التكبير/التصغير */
+  left: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1100;
+}
+
+.toggle-buttons-right {
+  position: absolute;
+  top: 80px; /* أسفل أزرار التكبير/التصغير */
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1100;
+}
+
+.toggle-button {
+  background: #007bff;
+  color: #ffffff;
+  border: none;
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-button:hover {
+  background: #0056b3;
+}
+
+/* إزالة التمرير في الصفحة بأكملها */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
