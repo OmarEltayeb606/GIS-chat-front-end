@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import L from 'leaflet'; // استيراد مكتبة Leaflet
 import './addlayerbutton.css';
 
 const AddLayerButton = ({ onAddLayer }) => {
@@ -42,18 +41,34 @@ const AddLayerButton = ({ onAddLayer }) => {
       const newLayers = results
         .filter((data) => data.success)
         .map((data) => {
+          // التحقق من وجود الحدود والبيانات
+          if (data.type === 'raster') {
+            if (!data.bounds) {
+              console.error(`Raster layer ${data.name} is missing bounds.`);
+              alert(`خطأ: طبقة ${data.name} من نوع raster تفتقد الحدود (bounds).`);
+              return null;
+            }
+            if (!data.data) {
+              console.error(`Raster layer ${data.name} is missing data.`);
+              alert(`خطأ: طبقة ${data.name} من نوع raster تفتقد البيانات (data).`);
+              return null;
+            }
+          }
+
           const newLayer = {
             id: `layer-${Date.now()}-${data.name}`,
             name: layerName || data.name,
             type: data.type,
             visible: true,
             data: data.type === 'vector' ? data.geojson : data.data,
-            bounds: data.type === 'raster' ? data.bounds : L.geoJSON(data.geojson).getBounds(), // حساب الحدود للطبقات من نوع vector
+            bounds: data.bounds,
+            crs: data.crs, // إضافة خاصية crs من استجابة الـ API
             zIndex: 100,
           };
-          console.log('New Layer:', JSON.stringify(newLayer, null, 2));
+          console.log('New Layer being sent to MapView:', JSON.stringify(newLayer, null, 2));
           return newLayer;
-        });
+        })
+        .filter((layer) => layer !== null); // تصفية الطبقات الفاشلة
 
       if (newLayers.length === 0) {
         alert('لم يتم رفع أي طبقات بنجاح. تحقق من الملفات وأعد المحاولة.');
