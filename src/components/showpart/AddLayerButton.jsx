@@ -25,7 +25,7 @@ const AddLayerButton = ({ onAddLayer }) => {
       const response = await axios.post('http://localhost:8000/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log('FastAPI Response:', JSON.stringify(response.data, null, 2)); // تصحيح
+      console.log('FastAPI Response:', JSON.stringify(response.data, null, 2));
       const results = response.data;
 
       results.forEach((data) => {
@@ -39,17 +39,17 @@ const AddLayerButton = ({ onAddLayer }) => {
             bounds: data.type === 'raster' ? data.bounds : undefined,
             zIndex: 100,
           };
-          console.log('New Layer:', JSON.stringify(newLayer, null, 2)); // تصحيح
+          console.log('New Layer:', JSON.stringify(newLayer, null, 2));
           onAddLayer(newLayer);
         } else {
-          console.error(`Error for ${data.name}: ${data.error}`); // تصحيح
+          console.error(`Error for ${data.name}: ${data.error}`);
           alert(`خطأ أثناء رفع ملف ${data.name}: ${data.error}`);
         }
       });
 
       toggleModal();
     } catch (error) {
-      console.error('Error handling file upload:', error.message); // تصحيح
+      console.error('Error handling file upload:', error.message);
       alert(`خطأ أثناء رفع الملف: ${error.message}`);
     }
   };
@@ -84,7 +84,7 @@ const AddLayerButton = ({ onAddLayer }) => {
                 <p>اختر ملف:</p>
                 <input
                   type="file"
-                  accept=".shp,.dbf,.shx,.prj,.tif,.tiff"
+                  accept=".shp,.dbf,.shx,.prj,.tif,.tiff,.zip"
                   multiple
                   ref={fileInputRef}
                   onChange={handleFileUpload}
@@ -94,7 +94,7 @@ const AddLayerButton = ({ onAddLayer }) => {
                   اختر ملف
                 </button>
                 <p className="file-formats">
-                  الملفات المدعومة: SHP (مع الملفات المرتبطة)، TIFF
+                  الملفات المدعومة: SHP (مع الملفات المرتبطة)، TIFF، ZIP
                 </p>
               </div>
               <div className="modal-buttons">

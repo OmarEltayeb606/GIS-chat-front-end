@@ -11,6 +11,18 @@ import './MapView.css';
 import { debounce } from 'lodash';
 import { FaLayerGroup, FaRulerCombined } from 'react-icons/fa';
 
+// إصلاح مشكلة أيقونات Leaflet
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+L.Marker.prototype.options.icon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+
 // مكون لضبط حدود الخريطة تلقائيًا
 const FitBounds = ({ layers }) => {
   const map = useMap();
@@ -79,7 +91,7 @@ const MapView = () => {
       map.off('click', onClick);
       map.off('focus', onFocus);
     };
-  }, [isMeasuring]); // إزالة mapRef.current من التبعيات
+  }, [isMeasuring]);
 
   const handleAddLayer = useCallback((newLayer) => {
     console.log('Adding Layer:', JSON.stringify(newLayer, null, 2));
@@ -116,7 +128,7 @@ const MapView = () => {
         console.log(`Zooming to raster bounds: ${JSON.stringify(layer.bounds)}`);
         map.fitBounds(layer.bounds);
       } else if (layer.type === 'vector' && layer.data) {
-        const geoJsonLayer = L.geoJSON(layer.data, {
+        const geoJsonLayer = L.geoJSON(JSON.parse(layer.data), {
           pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
             radius: 6,
             fillColor: layer.color || '#ff7800',
@@ -139,7 +151,7 @@ const MapView = () => {
     } catch (e) {
       alert(`خطأ أثناء التكبير على الطبقة: ${e.message}`);
     }
-  }, [layers, isMapReady]); // إضافة التبعيات المفقودة
+  }, [layers, isMapReady]);
 
   const handleDeleteLayer = useCallback((layerId) => {
     console.log(`Deleting layer: ${layerId}`);
@@ -208,12 +220,10 @@ const MapView = () => {
       return;
     }
 
-    // إزالة آخر نقطة من القياس
     latlngs.pop();
     lastMeasurement.layer.setLatLngs(latlngs);
     console.log('Last point removed from latlngs:', latlngs);
 
-    // تحديث حالة measurements
     setMeasurements((prev) =>
       prev.map((m) =>
         m.id === lastMeasurement.id
@@ -222,7 +232,6 @@ const MapView = () => {
       )
     );
 
-    // إزالة الماركر المرتبط بآخر نقطة
     const lastMarker = markersRef.current[markersRef.current.length - 1];
     if (lastMarker) {
       mapRef.current.removeLayer(lastMarker);
@@ -268,12 +277,12 @@ const MapView = () => {
       }
       return newState;
     });
-  }, [isDraggingEnabled]); // إضافة isDraggingEnabled كتبعية
+  }, []);
 
   const handleToolSelect = useCallback((tool) => {
     if (!isMapReady || !mapRef.current) {
       console.error('Map not initialized');
-      console.log('خطأ: الخريطة لم تُهيأ بعد. انتظر قليلاً ثم حاول مرة أخرى.');
+      alert('خطأ: الخريطة لم تُهيأ بعد. انتظر قليلاً ثم حاول مرة أخرى.');
       return;
     }
     const map = mapRef.current;
@@ -291,7 +300,6 @@ const MapView = () => {
           map.boxZoom.disable();
           map.keyboard.disable();
 
-          // إضافة رسالة توضيحية مع تعليمات استخدام Ctrl + Z
           alert('استخدم زر الفأرة الوسطى (بكرة الفأرة) لتحريك الخريطة أثناء القياس، أو استخدم زر "تفعيل السحب" في النافذة المنبثقة. اضغط Ctrl + Z للتراجع عن آخر نقطة.');
 
           measureControlRef.current = L.control.measure({
@@ -339,7 +347,6 @@ const MapView = () => {
                 },
               ]);
 
-              // إضافة ماركرز مرئية لكل نقطة
               points.forEach((point, index) => {
                 const marker = L.marker(point, { draggable: true }).addTo(map);
                 marker.measurementId = measurementId;
@@ -456,7 +463,7 @@ const MapView = () => {
           console.log('Measure control added');
         } catch (e) {
           console.error(`Error adding measure control: ${e.message}`);
-          console.log(`خطأ في تفعيل أداة القياس: ${e.message}`);
+          alert(`خطأ في تفعيل أداة القياس: ${e.message}`);
         }
       } else {
         setIsMeasuring(false);
@@ -504,7 +511,7 @@ const MapView = () => {
         <FeatureGroup key={layer.id}>
           {layer.type === 'vector' ? (
             <GeoJSON
-              data={layer.data}
+              data={JSON.parse(layer.data)}
               style={{ color: layer.color || '#ff7800', weight: 2, opacity: layer.opacity || 0.65 }}
               pointToLayer={pointToLayer}
             />
@@ -562,8 +569,8 @@ const MapView = () => {
         </button>
       </div>
       <MapContainer
-        center={[24.7136, 46.6753]}
-        zoom={10}
+        center={[26.8206, 30.8025]} // مركز مصر
+        zoom={6}
         style={{ height: '100%', width: '100%' }}
         whenReady={(map) => {
           console.log('MapContainer fully ready');

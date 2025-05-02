@@ -5,6 +5,8 @@
   top: 60px;
   left: 0;
   overflow: hidden;
+  background: #f4f6f9;
+  animation: fadeIn 1s ease-in;
 }
 
 .map-view .leaflet-container {
@@ -18,23 +20,26 @@
 
 .map-view .toolbar {
   position: absolute;
-  top: 100px; /* أسفل أزرار التبديل وأزرار التكبير/التصغير */
+  top: 100px;
   right: 10px;
   z-index: 900;
-  background: #fff;
-  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
   padding: 10px;
   max-height: 80vh;
   overflow-y: auto;
   width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
 }
 
-/* إزالة التصميم القديم لـ layer-list من MapView.css لأنه تم نقله إلى LayerList.css */
-/* .map-view .layer-list { ... } */
+.map-view .toolbar:hover {
+  transform: scale(1.05);
+}
 
 .toggle-buttons-left {
   position: absolute;
-  top: 80px; /* أسفل أزرار التكبير/التصغير */
+  top: 80px;
   left: 10px;
   display: flex;
   gap: 10px;
@@ -43,7 +48,7 @@
 
 .toggle-buttons-right {
   position: absolute;
-  top: 80px; /* أسفل أزرار التكبير/التصغير */
+  top: 80px;
   right: 10px;
   display: flex;
   gap: 10px;
@@ -51,7 +56,7 @@
 }
 
 .toggle-button {
-  background: #007bff;
+  background: #3498db;
   color: #ffffff;
   border: none;
   padding: 10px;
@@ -61,16 +66,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.3s ease;
 }
 
 .toggle-button:hover {
-  background: #0056b3;
+  background: #2980b9;
 }
 
-/* إزالة التمرير في الصفحة بأكملها */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
