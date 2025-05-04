@@ -15,6 +15,7 @@
     "adm-zip": "^0.5.16",
     "axios": "^1.8.2",
     "cors": "^2.8.5",
+    "epsg-index": "^2.0.0",
     "express": "^4.21.2",
     "framer-motion": "^12.7.4",
     "gdal-async": "^3.10.1",
