@@ -1,0 +1,58 @@
+.toolbar {
+  position: absolute;
+  top: 60px; /* أسفل أزرار التبديل */
+  right: 10px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 900;
+  width: 250px; /* عرض ثابت */
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.toolbar h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.toolbar select,
+.toolbar button {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.toolbar button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.toolbar button:hover {
+  background: #0056b3;
+}
+
+.measurement-item {
+  border-bottom: 1px solid #eee;
+  padding: 5px 0;
+  font-size: 14px;
+}
+
+.measurement-item p {
+  margin: 5px 0;
+}
+
+.measurement-item button {
+  background: #dc3545;
+  width: auto;
+  padding: 5px 10px;
+  margin-top: 5px;
+}
+
+.measurement-item button:hover {
+  background: #c82333;
+}

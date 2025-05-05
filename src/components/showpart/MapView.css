@@ -1,47 +1,86 @@
-.map-container {
-  position: relative;
+.map-view {
+  position: fixed;
   width: 100%;
+  height: calc(100vh - 60px);
+  top: 60px;
+  left: 0;
+  overflow: hidden;
+  background: #f4f6f9;
+  animation: fadeIn 1s ease-in;
 }
 
-.controls {
+.map-view .leaflet-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.map-view .toolbar {
+  position: absolute;
+  top: 100px;
+  right: 10px;
+  z-index: 900;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+  width: 250px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.map-view .toolbar:hover {
+  transform: scale(1.05);
+}
+
+.toggle-buttons-left {
+  position: absolute;
+  top: 80px;
+  left: 10px;
   display: flex;
   gap: 10px;
-  margin-bottom: 10px;
+  z-index: 1100;
 }
 
-.upload-button {
-  padding: 8px 16px;
-  background-color: #4CAF50;
-  color: white;
-  border-radius: 4px;
-  cursor: pointer;
+.toggle-buttons-right {
+  position: absolute;
+  top: 80px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1100;
 }
 
-.toggle-osm-button {
-  padding: 8px 16px;
-  background-color: #2196F3;
-  color: white;
+.toggle-button {
+  background: #3498db;
+  color: #ffffff;
   border: none;
+  padding: 10px;
   border-radius: 4px;
   cursor: pointer;
-}
-
-.layers-list {
-  margin-bottom: 10px;
-}
-
-.layer-item {
+  font-size: 18px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 5px;
+  justify-content: center;
+  transition: background 0.3s ease;
 }
 
-.clear-button {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
+.toggle-button:hover {
+  background: #2980b9;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
 }

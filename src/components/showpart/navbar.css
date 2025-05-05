@@ -1,38 +1,37 @@
-
-.barContainer{
-    border: rgb(58, 57, 57) solid;
-    /* margin-top: 1%;
-    margin-bottom: 5%; */
-    background-color: rgb(58, 57, 57);
-    /* position: fixed; */
-    width: 100%;
-
-}
-.bar{
-    margin: auto;/*margin-left: 35%; */
-    margin-top: 0.5%;
-    margin-bottom: 0.5%;
-width: 400px;
-display: flex;
-justify-content: space-between;
-list-style-type: none;
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px; /* ارتفاع ثابت */
+  background-color: #007bff;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0; /* إزالة الهامش */
+  z-index: 1100; /* أعلى من كل العناصر */
+  box-sizing: border-box; /* ضمان احتساب الحدود ضمن الارتفاع */
 }
 
-.bar-link{
-    text-decoration: none;
-    color:black ;
-
+.navbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
 }
 
-.bar li{
-background-color: white;
-border-radius: 20px;
-padding: 3%;
-/* height: 5%; */
+.navbar li {
+  margin: 0 20px;
 }
 
-.bar li:hover{
-    background-color: rgb(82, 70, 126);
-    
+.navbar a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px;
+}
 
+.navbar a:hover {
+  text-decoration: underline;
 }

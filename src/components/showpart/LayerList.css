@@ -1,0 +1,113 @@
+.layer-list-container {
+  position: absolute;
+  top: 60px;
+  left: 10px;
+  z-index: 1000;
+}
+
+.layer-list {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.layer-list h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+}
+
+.add-layer-button-container {
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.base-map-toggle {
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.layer-item {
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.layer-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.layer-controls input[type="checkbox"] {
+  margin: 0;
+}
+
+.layer-controls span {
+  flex: 1;
+  max-width: 100px; /* تحديد عرض ثابت للاسم */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* إضافة النقاط (...) للنصوص الطويلة */
+}
+
+.layer-controls button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.layer-controls button:hover {
+  background: #0056b3;
+}
+
+.layer-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.layer-settings label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.layer-settings input[type="color"] {
+  width: 30px;
+  height: 20px;
+  padding: 0;
+  border: none;
+}
+
+.layer-settings input[type="range"] {
+  width: 100%;
+}
+
+/* تصميم المقبض */
+.react-resizable-handle-e {
+  width: 10px;
+  height: 40px;
+  background: #007bff;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+  border-radius: 0 4px 4px 0;
+}
+
+.react-resizable-handle-e::after {
+  content: '⋮';
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+}
