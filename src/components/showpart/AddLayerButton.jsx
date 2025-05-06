@@ -5,11 +5,13 @@ import './addlayerbutton.css';
 const AddLayerButton = ({ onAddLayer }) => {
   const [showModal, setShowModal] = useState(false);
   const [layerName, setLayerName] = useState('');
+  const [layerColor, setLayerColor] = useState('#ff0000'); // اللون الافتراضي (أحمر)
   const fileInputRef = useRef(null);
 
   const toggleModal = () => {
     setShowModal(!showModal);
     setLayerName('');
+    setLayerColor('#ff0000'); // إعادة تعيين اللون إلى قيمة افتراضية واضحة
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -63,6 +65,9 @@ const AddLayerButton = ({ onAddLayer }) => {
             bounds: data.bounds,
             crs: data.crs,
             zIndex: 100,
+            color: layerColor, // لون الإطار
+            fillColor: layerColor, // لون الملء (مركز الدائرة)
+            fillOpacity: 0.7, // التأكد من أن الملء مرئي
           };
           console.log('New Layer being sent to MapView:', JSON.stringify(newLayer, null, 2));
           return newLayer;
@@ -116,10 +121,20 @@ const AddLayerButton = ({ onAddLayer }) => {
                 />
               </div>
               <div className="form-group">
+                <label htmlFor="layer-color">لون الطبقة:</label>
+                <input
+                  type="color"
+                  id="layer-color"
+                  value={layerColor}
+                  onChange={(e) => setLayerColor(e.target.value)}
+                  title="اختر لون الطبقة"
+                />
+              </div>
+              <div className="form-group">
                 <p>اختر الملفات:</p>
                 <input
                   type="file"
-                  accept=".shp,.dbf,.shx,.prj,.tif,.tiff,.zip"
+                  accept=".shp,.dbf,.shx,.prj,.tif,.tiff,.zip,.geojson,application/geo+json,.json"
                   multiple
                   ref={fileInputRef}
                   onChange={handleFileUpload}
@@ -129,7 +144,7 @@ const AddLayerButton = ({ onAddLayer }) => {
                   اختر ملفات
                 </button>
                 <p className="file-formats">
-                  الملفات المدعومة: SHP (مع الملفات المرتبطة)، TIFF، ZIP
+                  الملفات المدعومة: SHP (مع الملفات المرتبطة)، TIFF، ZIP، GeoJSON
                 </p>
               </div>
               <div className="modal-buttons">

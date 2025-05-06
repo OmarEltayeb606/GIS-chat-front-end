@@ -61,8 +61,24 @@
   cursor: pointer;
 }
 
+.layer-controls button:nth-child(4) { /* زر التنزيل */
+  background: #28a745; /* لون أخضر لزر التنزيل */
+}
+
+.layer-controls button:nth-child(4):hover {
+  background: #218838;
+}
+
 .layer-controls button:hover {
   background: #0056b3;
+}
+
+.layer-controls button:last-child { /* زر الحذف */
+  background: #dc3545;
+}
+
+.layer-controls button:last-child:hover {
+  background: #c82333;
 }
 
 .layer-settings {
