@@ -30,7 +30,9 @@ body.dark-mode {
   position: relative;
   width: 100%;
   min-height: 100vh;
-  overflow: hidden;
+  /* overflow: hidden; */
+  padding-top: 60px;
+  animation: fadeIn 1s ease forwards;
 }
 
 .welcome-screen.rtl {
@@ -86,11 +88,13 @@ body.dark-mode {
   margin: 0 auto;
   color: white;
   z-index: 2;
+  animation: slideUp 1s ease forwards;
 }
 
 .welcome-header {
   text-align: center;
   margin-bottom: 60px;
+  animation: slideUp 1s ease forwards;
 }
 
 .welcome-header h1 {
@@ -112,6 +116,7 @@ body.dark-mode {
   max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  animation: fadeIn 1.5s ease forwards;
 }
 
 .description {
@@ -122,6 +127,7 @@ body.dark-mode {
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 40px;
+  animation: fadeIn 1.5s ease forwards;
 }
 
 .welcome-actions {
@@ -188,117 +194,6 @@ body.dark-mode {
   max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
-}
-
-.feature-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 30px;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.feature-icon {
-  font-size: 3rem;
-  margin-bottom: 20px;
-}
-
-.feature-card h3 {
-  font-size: 1.6rem;
-  margin-bottom: 15px;
-  color: white;
-}
-
-.feature-card p {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.scroll-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 80px;
-  text-align: center;
-}
-
-.scroll-indicator p {
-  font-size: 1rem;
-  opacity: 0.8;
-  margin-bottom: 10px;
-}
-
-.scroll-arrow {
-  font-size: 2rem;
-  opacity: 0.8;
-}
-
-/* Responsive styles */
-@media (max-width: 992px) {
-  .welcome-content {
-    padding: 120px 30px 40px;
-  }
-  
-  .welcome-header h1 {
-    font-size: 2.8rem;
-  }
-  
-  .subtitle {
-    font-size: 1.2rem;
-  }
-  
-  .features-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .welcome-content {
-    padding: 100px 20px 40px;
-  }
-  
-  .welcome-header h1 {
-    font-size: 2.2rem;
-  }
-  
-  .subtitle {
-    font-size: 1.1rem;
-  }
-  
-  .description {
-    font-size: 1rem;
-  }
-  
-  .features-grid {
-    grid-template-columns: 1fr;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .welcome-actions {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .cta-button {
-    width: 100%;
-    max-width: 300px;
-  }
-  
-  .preference-toggles {
-    width: 100%;
-    max-width: 300px;
-    justify-content: center;
-  }
-}
-
-/* Dark mode specifics */
-body.dark-mode .feature-card {
-  background: rgba(15, 23, 42, 0.6);
 }
 
 /* Animation keyframes */

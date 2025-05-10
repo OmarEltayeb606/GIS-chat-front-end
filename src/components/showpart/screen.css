@@ -1,4 +1,11 @@
 .leaflet-container {
   height: 100%;
   width: 100%;
+  animation: fadeIn 1s ease forwards;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

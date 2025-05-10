@@ -3,6 +3,7 @@
   top: 60px;
   left: 10px;
   z-index: 1000;
+  animation: slideInLeft 0.5s ease forwards;
 }
 
 .layer-list {
@@ -11,11 +12,20 @@
   padding: 10px;
   max-height: 80vh;
   overflow-y: auto;
+  transition: box-shadow 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.2);
+  border-radius: 8px;
+}
+
+.layer-list:hover {
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.4);
 }
 
 .layer-list h3 {
   margin: 0 0 10px;
   font-size: 16px;
+  color: #007bff;
+  text-shadow: 0 0 5px rgba(0, 123, 255, 0.7);
 }
 
 .add-layer-button-container {
@@ -31,6 +41,12 @@
 .layer-item {
   border-bottom: 1px solid #eee;
   padding: 10px 0;
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+}
+
+.layer-item:hover {
+  background-color: rgba(0, 123, 255, 0.1);
 }
 
 .layer-controls {
@@ -50,6 +66,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis; /* إضافة النقاط (...) للنصوص الطويلة */
+  transition: color 0.3s ease;
+}
+
+.layer-controls span:hover {
+  color: #0056b3;
 }
 
 .layer-controls button {
@@ -59,6 +80,7 @@
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .layer-controls button:nth-child(4) { /* زر التنزيل */
@@ -67,10 +89,12 @@
 
 .layer-controls button:nth-child(4):hover {
   background: #218838;
+  transform: scale(1.1);
 }
 
 .layer-controls button:hover {
   background: #0056b3;
+  transform: scale(1.1);
 }
 
 .layer-controls button:last-child { /* زر الحذف */
@@ -79,6 +103,7 @@
 
 .layer-controls button:last-child:hover {
   background: #c82333;
+  transform: scale(1.1);
 }
 
 .layer-settings {
@@ -99,10 +124,22 @@
   height: 20px;
   padding: 0;
   border: none;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.layer-settings input[type="color"]:hover {
+  box-shadow: 0 0 5px #007bff;
 }
 
 .layer-settings input[type="range"] {
   width: 100%;
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+
+.layer-settings input[type="range"]:hover {
+  box-shadow: 0 0 5px #007bff;
 }
 
 /* تصميم المقبض */
@@ -116,6 +153,11 @@
   transform: translateY(-50%);
   cursor: ew-resize;
   border-radius: 0 4px 4px 0;
+  transition: background-color 0.3s ease;
+}
+
+.react-resizable-handle-e:hover {
+  background: #0056b3;
 }
 
 .react-resizable-handle-e::after {
@@ -126,4 +168,31 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 16px;
+}
+
+/* Animations */
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.modal-overlay {
+  animation: fadeInScale 0.3s ease forwards;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

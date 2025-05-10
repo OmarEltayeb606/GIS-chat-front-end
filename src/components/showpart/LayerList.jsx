@@ -15,7 +15,6 @@ const LayerList = ({
   addLayerButton,
 }) => {
   const [width, setWidth] = useState(250);
-  const [showMetadata, setShowMetadata] = useState(null);
 
   const handleResize = (event, { size }) => {
     setWidth(size.width);
@@ -54,33 +53,6 @@ const LayerList = ({
     }
   };
 
-  const handleShowMetadata = (layer) => {
-    setShowMetadata(layer);
-  };
-
-  const handleCloseMetadata = () => {
-    setShowMetadata(null);
-  };
-
-  const getTableData = (layer) => {
-    if (layer.type !== 'vector' || !layer.data) {
-      return { columns: [], data: [] };
-    }
-    try {
-      const geojson = JSON.parse(layer.data);
-      if (!geojson.features || geojson.features.length === 0) {
-        return { columns: [], data: [] };
-      }
-      const firstFeature = geojson.features[0];
-      const columns = Object.keys(firstFeature.properties || {});
-      const data = geojson.features.map((feature) => feature.properties || {});
-      return { columns, data };
-    } catch (e) {
-      console.error(`فشل تحليل GeoJSON للطبقة ${layer.name}: ${e.message}`);
-      return { columns: [], data: [] };
-    }
-  };
-
   return (
     <ResizableBox
       width={width}
@@ -111,7 +83,6 @@ const LayerList = ({
                 />
                 <span>{layer.name}</span>
                 <button onClick={() => onZoomToLayer(layer.id)}>التكبير</button>
-                <button onClick={() => handleShowMetadata(layer)}>البيانات الوصفية</button>
                 {layer.type === 'vector' && (
                   <button onClick={() => handleDownloadLayer(layer)}>تنزيل</button>
                 )}
@@ -141,48 +112,6 @@ const LayerList = ({
             </li>
           ))}
         </ul>
-        {showMetadata && (
-          <div className="modal-overlay">
-            <div className="metadata-modal">
-              <h3>البيانات الوصفية للطبقة: {showMetadata.name}</h3>
-              {showMetadata.type === 'vector' && showMetadata.data ? (
-                (() => {
-                  const { columns, data } = getTableData(showMetadata);
-                  if (columns.length === 0 || data.length === 0) {
-                    return <p>لا توجد بيانات وصفية متاحة.</p>;
-                  }
-                  return (
-                    <div className="table-container">
-                      <table className="metadata-table">
-                        <thead>
-                          <tr>
-                            <th className="row-header">الرقم</th>
-                            {columns.map((col) => (
-                              <th key={col}>{col}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {data.map((row, rowIndex) => (
-                            <tr key={rowIndex}>
-                              <td className="row-header">{rowIndex + 1}</td>
-                              {columns.map((col) => (
-                                <td key={col}>{row[col] || ''}</td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  );
-                })()
-              ) : (
-                <p>لا توجد بيانات وصفية متاحة.</p>
-              )}
-              <button onClick={handleCloseMetadata} className="modal-close-button">إغلاق</button>
-            </div>
-          </div>
-        )}
       </div>
     </ResizableBox>
   );

@@ -1,105 +1,100 @@
 /* exploreWithUsRaster.css - Professional styling specific to the raster component */
 
 .raster-section {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: white;
-  }
-  
-  .raster-section .section-title {
-    color: white;
-  }
-  
-  .raster-section .section-description {
-    color: #e2e8f0;
-  }
-  
-  .raster-section .feature-list li {
-    color: #f1f5f9;
-  }
-  
-  .raster-section .feature-icon {
-    background: #8B5CF6;
-  }
-  
-  .raster-section .explore-button {
-    background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-    box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
-  }
-  
-  .raster-section .explore-button:hover {
-    box-shadow: 0 15px 25px rgba(139, 92, 246, 0.4);
-  }
-  
-  .image-filter-effect {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.3));
-    pointer-events: none;
-  }
-  
-  .data-points {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-  }
-  
-  .data-point {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background-color: rgba(255, 255, 255, 0.9);
-    border-radius: 50%;
-    animation: dataPoint 4s infinite alternate;
-  }
-  
-  .data-point::before {
-    content: '';
-    position: absolute;
-    top: -4px;
-    left: -4px;
-    right: -4px;
-    bottom: -4px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    animation: dataPointPulse 2s infinite;
-  }
-  
-  .data-point:nth-child(1) {
-    animation-delay: 0.5s;
-  }
-  
-  .data-point:nth-child(2) {
-    animation-delay: 1s;
-  }
-  
-  .data-point:nth-child(3) {
-    animation-delay: 1.5s;
-  }
-  
-  @keyframes dataPoint {
-    0% {
-      transform: scale(1);
-      opacity: 0.7;
-    }
-    100% {
-      transform: scale(1.5);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes dataPointPulse {
-    0% {
-      transform: scale(1);
-      opacity: 0.5;
-    }
-    100% {
-      transform: scale(2);
-      opacity: 0;
-    }
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: white;
+  padding-top: 60px;
+  animation: fadeIn 1s ease forwards;
+}
+
+.raster-section .section-title {
+  color: white;
+  animation: slideUp 1s ease forwards;
+}
+
+.raster-section .section-description {
+  color: #e2e8f0;
+  animation: fadeIn 1.5s ease forwards;
+}
+
+.raster-section .feature-list li {
+  color: #f1f5f9;
+}
+
+.raster-section .feature-icon {
+  background: #8B5CF6;
+}
+
+.raster-section .explore-button {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+  transition: box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.raster-section .explore-button:hover {
+  box-shadow: 0 15px 25px rgba(0, 123, 255, 0.4);
+  background: linear-gradient(135deg, #0056b3 0%, #003d7a 100%);
+}
+
+.image-filter-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(0, 123, 255, 0.1), rgba(0, 86, 179, 0.3));
+  pointer-events: none;
+}
+
+.data-points {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.data-point {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  animation: dataPoint 4s infinite alternate;
+}
+
+.data-point::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  animation: dataPointPulse 2s infinite;
+}
+
+.data-point:nth-child(1) {
+  animation-delay: 0.5s;
+}
+
+.data-point:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.data-point:nth-child(3) {
+  animation-delay: 1.5s;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
   }

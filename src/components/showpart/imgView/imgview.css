@@ -9,10 +9,11 @@
   padding: 25px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   border-radius: 16px;
-  overflow: hidden;
+  /* overflow: hidden; */
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   position: relative;
   transition: all 0.3s ease;
+  animation: fadeIn 1s ease forwards;
 }
 
 .imgview-container.fullscreen {
@@ -30,6 +31,7 @@
   text-align: center;
   margin-bottom: 25px;
   color: #2c3e50;
+  animation: slideIn 1s ease forwards;
 }
 
 .imgview-header h1 {
