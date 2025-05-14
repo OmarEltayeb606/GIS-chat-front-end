@@ -1,309 +1,369 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 import './welcomeScreen.css';
 
-function WelcomeScreen() {
-  const [scrollY, setScrollY] = useState(0);
-  const [darkMode, setDarkMode] = useState(() => {
-    try {
-      return localStorage.getItem('darkMode') === 'true';
-    } catch {
-      return false;
-    }
-  });
-  const [language, setLanguage] = useState(() => {
-    try {
-      return localStorage.getItem('language') || 'en';
-    } catch {
-      return 'en';
-    }
-  });
-  const parallaxRef = useRef(null);
-  const floatingElements = useRef([]);
+// استيراد الصور
+const images = {
+  satelliteAnalysis: "https://www.esri.com/content/dam/esrisites/en-us/arcgis/capabilities/capabilities-redesign-2022/imagery-remote-sensing/imagery-update-09-22/assets/imagery-sensing-analysis-banner-fg.png",
+  vectorAnalysis: "https://mfarooqui.com/wp-content/uploads/2023/03/AI-in-GIS-Vector-Data-Automation_TinyPNG.png",
+  aiProcessing: "https://www.esri.com/content/dam/esrisites/en-us/arcgis/capabilities/capabilities-redesign-2022/imagery-remote-sensing/imagery-update-09-22/assets/imagery-sensing-content-switcher-geoai.jpg",
+  dataVisualization: "https://www.xyht.com/wp-content/uploads/2023/10/34-AI-Diagram.jpg",
+  satImagery: "https://s3.amazonaws.com/content.satimagingcorp.com/static/galleryimages/pleiades-neo-3-satellite-image.jpg",
+};
 
-  // Content in multiple languages
-  const content = {
-    en: {
-      title: "Welcome to GeoVision",
-      subtitle: "Advanced Geospatial Data Processing Platform",
-      description: "Process, visualize, and analyze your geospatial data with our cutting-edge tools. Upload vector and raster data to gain valuable insights.",
-      features: [
-        {
-          title: "Vector Processing",
-          description: "Analyze shapefile data with powerful client-side tools",
-          icon: "📍"
-        },
-        {
-          title: "Raster Analysis",
-          description: "Process and visualize raster data directly in your browser",
-          icon: "🖼️"
-        },
-        {
-          title: "Interactive Mapping",
-          description: "Explore your geographic data with intuitive controls",
-          icon: "🗺️"
-        }
-      ],
-      cta: "Get Started",
-      scrollForMore: "Scroll to explore"
-    },
-    ar: {
-      title: "مرحبًا بك في جيوفيجن",
-      subtitle: "منصة متقدمة لمعالجة البيانات الجغرافية المكانية",
-      description: "قم بمعالجة وتصور وتحليل بياناتك الجغرافية المكانية باستخدام أدواتنا المتطورة. قم بتحميل بيانات المتجهات والبيانات النقطية للحصول على رؤى قيمة.",
-      features: [
-        {
-          title: "معالجة المتجهات",
-          description: "تحليل بيانات ملفات الأشكال باستخدام أدوات قوية على جانب العميل",
-          icon: "📍"
-        },
-        {
-          title: "تحليل البيانات النقطية",
-          description: "معالجة وتصور البيانات النقطية مباشرة في متصفحك",
-          icon: "🖼️"
-        },
-        {
-          title: "رسم خرائط تفاعلي",
-          description: "استكشف بياناتك الجغرافية بأدوات تحكم بديهية",
-          icon: "🗺️"
-        }
-      ],
-      cta: "ابدأ الآن",
-      scrollForMore: "مرر لاستكشاف المزيد"
-    }
-  };
+const HomePage = () => {
+  const [darkMode, setDarkMode] = useState(false);
+  const [lang, setLang] = useState('ar'); // افتراضي باللغة العربية
+  const [animated, setAnimated] = useState(false);
 
-  // Handle scrolling effects with RAF
   useEffect(() => {
-    let rafId;
-    const handleScroll = () => {
-      rafId = requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
-      });
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      cancelAnimationFrame(rafId);
-    };
+    // تحقق من التفضيلات المحفوظة
+    const savedMode = localStorage.getItem('darkMode');
+    const savedLang = localStorage.getItem('language');
+    
+    if (savedMode) {
+      setDarkMode(savedMode === 'true');
+    } else {
+      // التحقق من تفضيل النظام
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDarkMode(prefersDark);
+    }
+    
+    if (savedLang) {
+      setLang(savedLang);
+    }
+    
+    // تفعيل الحركات بعد تحميل الصفحة
+    setTimeout(() => {
+      setAnimated(true);
+    }, 100);
   }, []);
 
-  // Create floating elements animation effect
   useEffect(() => {
-    const createFloatingElements = () => {
-      if (!parallaxRef.current) return;
+    // حفظ التفضيلات في التخزين المحلي
+    localStorage.setItem('darkMode', darkMode);
+    localStorage.setItem('language', lang);
+    
+    // تطبيق الوضع على العنصر الأساسي (html)
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  }, [darkMode, lang]);
 
-      // Clear previous elements
-      floatingElements.current.forEach(el => {
-        if (el && el.parentNode) {
-          el.parentNode.removeChild(el);
-        }
-      });
-      floatingElements.current = [];
-
-      // Number of elements to create
-      const count = 15;
-
-      for (let i = 0; i < count; i++) {
-        const element = document.createElement('div');
-        element.className = 'floating-element';
-
-        // Random properties
-        const size = Math.random() * 60 + 20;
-        const posX = Math.random() * 100;
-        const posY = Math.random() * 100;
-        const animationDuration = Math.random() * 20 + 10;
-        const animationDelay = Math.random() * 5;
-        const opacity = Math.random() * 0.3 + 0.1;
-
-        // Apply styles
-        element.style.width = `${size}px`;
-        element.style.height = `${size}px`;
-        element.style.left = `${posX}%`;
-        element.style.top = `${posY}%`;
-        element.style.animationDuration = `${animationDuration}s`;
-        element.style.animationDelay = `${animationDelay}s`;
-        element.style.opacity = opacity;
-
-        // Randomize the shape
-        const shapeClass = Math.random() > 0.5 ? 'circle' : 'square';
-        element.classList.add(shapeClass);
-
-        parallaxRef.current.appendChild(element);
-        floatingElements.current.push(element);
-      }
-    };
-
-    createFloatingElements();
-    window.addEventListener('resize', createFloatingElements);
-
-    return () => {
-      window.removeEventListener('resize', createFloatingElements);
-      floatingElements.current.forEach(el => {
-        if (el && el.parentNode) {
-          el.parentNode.removeChild(el);
-        }
-      });
-      floatingElements.current = [];
-    };
-  }, []);
-
-  // Sync dark mode and language direction
-  useEffect(() => {
-    document.body.classList.toggle('dark-mode', darkMode);
-  }, [darkMode]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('dir', language === 'ar' ? 'rtl' : 'ltr');
-  }, [language]);
-
-  // Toggle dark mode
+  // تبديل الوضع المظلم/الفاتح
   const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('darkMode', newMode.toString());
+    setDarkMode(!darkMode);
   };
 
-  // Toggle language
+  // تبديل اللغة
   const toggleLanguage = () => {
-    const newLanguage = language === 'en' ? 'ar' : 'en';
-    setLanguage(newLanguage);
-    localStorage.setItem('language', newLanguage);
+    setLang(lang === 'ar' ? 'en' : 'ar');
   };
 
-  const currentContent = content[language];
+  // نصوص الموقع بناءً على اللغة المختارة
+  const text = {
+    ar: {
+      title: 'GIS Chat',
+      subtitle: 'تحليل الصور الفضائية وملفات الفيكتور والراستر باستخدام الذكاء الاصطناعي',
+      description: 'منصة متطورة تجمع بين قوة الذكاء الاصطناعي وتقنيات نظم المعلومات الجغرافية لتحليل البيانات المكانية بكفاءة عالية ودقة متناهية.',
+      whatWeOffer: 'ماذا يقدم GIS Chat؟',
+      features: {
+        satelliteAnalysis: {
+          title: 'تحليل الصور الفضائية',
+          description: 'استخراج البيانات والمعلومات القيمة من الصور الفضائية عالية الدقة باستخدام خوارزميات الذكاء الاصطناعي المتطورة.'
+        },
+        vectorAnalysis: {
+          title: 'معالجة ملفات الفيكتور',
+          description: 'تحليل وتحسين بيانات الفيكتور الجغرافية مع دعم كامل لمختلف الصيغ واستخراج الأنماط المكانية.'
+        },
+        rasterAnalysis: {
+          title: 'تحليل بيانات الراستر',
+          description: 'معالجة صور الراستر بتقنيات متقدمة للكشف عن التغيرات والتنبؤ بالاتجاهات المستقبلية للظواهر الجغرافية.'
+        },
+        ai: {
+          title: 'الذكاء الاصطناعي',
+          description: 'استخدام أحدث تقنيات التعلم العميق والتعلم الآلي لاستخلاص المعلومات وتفسير البيانات المكانية بدقة عالية.'
+        },
+        dataVisualization: {
+          title: 'تصور البيانات',
+          description: 'عرض النتائج بطريقة سهلة الفهم مع رسوم بيانية تفاعلية وخرائط حرارية توضح العلاقات المكانية.'
+        },
+        cloudSolutions: {
+          title: 'حلول سحابية',
+          description: 'الوصول إلى قوة المعالجة العالية من أي مكان دون الحاجة لأجهزة متطورة، مع تخزين آمن للبيانات.'
+        }
+      },
+      whyNeedUs: 'لماذا قد تحتاج GIS Chat؟',
+      userGroups: {
+        researchers: {
+          title: 'للباحثين والأكاديميين',
+          items: [
+            'تحليل التغيرات البيئية على مدى فترات زمنية',
+            'دراسة التوسع العمراني وتأثيره على البيئة',
+            'رصد الظواهر الطبيعية ومراقبة تغيراتها',
+            'تحديد أنماط استخدام الأراضي'
+          ]
+        },
+        government: {
+          title: 'للمؤسسات الحكومية',
+          items: [
+            'التخطيط العمراني والحضري المستدام',
+            'إدارة الموارد الطبيعية والبنية التحتية',
+            'الاستجابة للكوارث وإدارة الأزمات',
+            'مراقبة المناطق الحدودية والأمن القومي'
+          ]
+        },
+        agriculture: {
+          title: 'للقطاع الزراعي',
+          items: [
+            'مراقبة صحة المحاصيل وتقدير الإنتاج',
+            'تحديد مناطق الجفاف والتصحر',
+            'تحسين إدارة الري واستخدام المياه',
+            'تخطيط استخدام الأراضي الزراعية'
+          ]
+        },
+        companies: {
+          title: 'للشركات والمؤسسات',
+          items: [
+            'تحليل السوق والتوزيع الجغرافي للعملاء',
+            'اختيار المواقع المثالية للمشاريع التجارية',
+            'تحسين سلاسل التوريد واللوجستيات',
+            'دراسة تأثير المشاريع على البيئة المحيطة'
+          ]
+        }
+      },
+      callToAction: 'ابدأ رحلتك مع GIS Chat الآن',
+      startNow: 'استكشف المنصة',
+      theme: 'السمة:',
+      light: 'فاتح',
+      dark: 'داكن',
+      language: 'اللغة:'
+    },
+    en: {
+      title: 'GIS Chat',
+      subtitle: 'Satellite Imagery, Vector & Raster Files Analysis Using Artificial Intelligence',
+      description: 'An advanced platform that combines the power of artificial intelligence and GIS technologies to analyze spatial data with high efficiency and precision.',
+      whatWeOffer: 'What does GIS Chat offer?',
+      features: {
+        satelliteAnalysis: {
+          title: 'Satellite Imagery Analysis',
+          description: 'Extract valuable data and information from high-resolution satellite images using advanced AI algorithms.'
+        },
+        vectorAnalysis: {
+          title: 'Vector File Processing',
+          description: 'Analyze and enhance geographic vector data with full support for various formats and spatial pattern extraction.'
+        },
+        rasterAnalysis: {
+          title: 'Raster Data Analysis',
+          description: 'Process raster images with advanced techniques to detect changes and predict future trends of geographic phenomena.'
+        },
+        ai: {
+          title: 'Artificial Intelligence',
+          description: 'Use the latest deep learning and machine learning techniques to extract information and interpret spatial data with high accuracy.'
+        },
+        dataVisualization: {
+          title: 'Data Visualization',
+          description: 'Present results in an easy-to-understand way with interactive graphics and heat maps showing spatial relationships.'
+        },
+        cloudSolutions: {
+          title: 'Cloud Solutions',
+          description: 'Access high processing power from anywhere without the need for advanced hardware, with secure data storage.'
+        }
+      },
+      whyNeedUs: 'Why might you need GIS Chat?',
+      userGroups: {
+        researchers: {
+          title: 'For Researchers and Academics',
+          items: [
+            'Analyze environmental changes over time periods',
+            'Study urban expansion and its impact on the environment',
+            'Monitor natural phenomena and track their changes',
+            'Identify land use patterns'
+          ]
+        },
+        government: {
+          title: 'For Government Institutions',
+          items: [
+            'Sustainable urban planning',
+            'Management of natural resources and infrastructure',
+            'Disaster response and crisis management',
+            'Monitoring border areas and national security'
+          ]
+        },
+        agriculture: {
+          title: 'For the Agricultural Sector',
+          items: [
+            'Monitor crop health and estimate production',
+            'Identify drought and desertification areas',
+            'Improve irrigation management and water use',
+            'Plan agricultural land use'
+          ]
+        },
+        companies: {
+          title: 'For Companies and Institutions',
+          items: [
+            'Market analysis and geographic distribution of customers',
+            'Selecting optimal locations for commercial projects',
+            'Improving supply chains and logistics',
+            'Studying the impact of projects on the surrounding environment'
+          ]
+        }
+      },
+      callToAction: 'Start your journey with GIS Chat now',
+      startNow: 'Explore the Platform',
+      theme: 'Theme:',
+      light: 'Light',
+      dark: 'Dark',
+      language: 'Language:'
+    }
+  };
 
   return (
-    <div className={`welcome-screen ${language === 'ar' ? 'rtl' : ''}`}>
-      <div 
-        ref={parallaxRef}
-        className="parallax-background"
-        style={{
-          transform: `translateY(${scrollY * 0.5}px)`
-        }}
-      ></div>
-      
-      <motion.div 
-        className="welcome-content"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <div className="welcome-header">
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
+    <div className={`home-container ${darkMode ? 'dark-mode' : 'light-mode'} ${lang === 'ar' ? 'rtl' : 'ltr'} ${animated ? 'animated' : ''}`}>
+      <div className="settings-bar">
+        {/* زر تغيير اللغة */}
+        <div className="toggle-group">
+          <span>{text[lang].language}</span>
+          <button 
+            className="toggle-button language-toggle" 
+            onClick={toggleLanguage}
+            aria-label={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
           >
-            {currentContent.title}
-          </motion.h1>
-          
-          <motion.p
-            className="subtitle"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            {currentContent.subtitle}
-          </motion.p>
-          
-          <motion.p
-            className="description"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-          >
-            {currentContent.description}
-          </motion.p>
-          
-          <motion.div
-            className="welcome-actions"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
-          >
-            <motion.button 
-              className="cta-button"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => console.log('CTA clicked')}
-              role="button"
-              tabIndex={0}
-              aria-label="Get started with GeoVision"
-            >
-              {currentContent.cta}
-            </motion.button>
-            
-            <motion.div
-              className="preference-toggles"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 0.5 }}
-            >
-              <button 
-                className={`mode-toggle ${darkMode ? 'dark' : 'light'}`}
-                onClick={toggleDarkMode}
-                aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                <span className="toggle-icon">
-                  {darkMode ? '🌙' : '☀️'}
-                </span>
-              </button>
-              
-              <button 
-                className="language-toggle"
-                onClick={toggleLanguage}
-                aria-label={language === 'en' ? 'Switch to Arabic' : 'Switch to English'}
-              >
-                {language === 'en' ? 'عربي' : 'EN'}
-              </button>
-            </motion.div>
-          </motion.div>
+            {lang === 'ar' ? 'EN' : 'عربي'}
+          </button>
         </div>
         
-        <motion.div 
-          className="features-grid"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2, duration: 0.8 }}
-        >
-          {currentContent.features.map((feature, index) => (
-            <motion.div 
-              key={index}
-              className="feature-card"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4 + (index * 0.2), duration: 0.6 }}
-              whileHover={{ 
-                y: -10,
-                boxShadow: '0 15px 30px rgba(0, 0, 0, 0.15)'
-              }}
-            >
-              <div className="feature-icon">{feature.icon}</div>
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+        {/* زر تغيير المظهر */}
+        <div className="toggle-group">
+          <span>{text[lang].theme}</span>
+          <button 
+            className={`toggle-button mode-toggle ${darkMode ? 'dark' : 'light'}`} 
+            onClick={toggleDarkMode}
+            aria-label={darkMode ? text[lang].light : text[lang].dark}
+          >
+            <span className="toggle-slider"></span>
+            <span className="toggle-icon">{darkMode ? '🌙' : '☀️'}</span>
+          </button>
+        </div>
+      </div>
+
+      <header className="home-header">
+        <div className="logo-container">
+          <div className="logo">GIS Chat</div>
+        </div>
+        <h1 className="main-title">{text[lang].title}</h1>
+        <h2 className="subtitle">{text[lang].subtitle}</h2>
+        <p className="description">{text[lang].description}</p>
+      </header>
+
+      <section className="features-section">
+        <h2 className="section-title">{text[lang].whatWeOffer}</h2>
         
-        <motion.div 
-          className="scroll-indicator"
-          animate={{
-            y: [0, 10, 0],
-            opacity: [0.8, 1, 0.8],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 2,
-            delay: 2,
-          }}
-        >
-          <p>{currentContent.scrollForMore}</p>
-          <div className="scroll-arrow">⌄</div>
-        </motion.div>
-      </motion.div>
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-image-container">
+              <img src={images.satelliteAnalysis} alt="تحليل الصور الفضائية" className="feature-image" />
+            </div>
+            <h3>{text[lang].features.satelliteAnalysis.title}</h3>
+            <p>{text[lang].features.satelliteAnalysis.description}</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-image-container">
+              <img src={images.vectorAnalysis} alt="معالجة ملفات الفيكتور" className="feature-image" />
+            </div>
+            <h3>{text[lang].features.vectorAnalysis.title}</h3>
+            <p>{text[lang].features.vectorAnalysis.description}</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-image-container">
+              <img src={images.satImagery} alt="تحليل بيانات الراستر" className="feature-image" />
+            </div>
+            <h3>{text[lang].features.rasterAnalysis.title}</h3>
+            <p>{text[lang].features.rasterAnalysis.description}</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-image-container">
+              <img src={images.aiProcessing} alt="الذكاء الاصطناعي" className="feature-image" />
+            </div>
+            <h3>{text[lang].features.ai.title}</h3>
+            <p>{text[lang].features.ai.description}</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-image-container">
+              <img src={images.dataVisualization} alt="تصور البيانات" className="feature-image" />
+            </div>
+            <h3>{text[lang].features.dataVisualization.title}</h3>
+            <p>{text[lang].features.dataVisualization.description}</p>
+          </div>
+          
+          <div className="feature-card">
+            <div className="feature-image-container">
+              <img src="https://storage.googleapis.com/gweb-research2023-media/original_images/GeospatialReasoning1_OverviewHERO.png" alt="حلول سحابية" className="feature-image" />
+            </div>
+            <h3>{text[lang].features.cloudSolutions.title}</h3>
+            <p>{text[lang].features.cloudSolutions.description}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="use-cases-section">
+        <h2 className="section-title">{text[lang].whyNeedUs}</h2>
+        
+        <div className="use-cases-grid">
+          <div className="use-case-card">
+            <h3>{text[lang].userGroups.researchers.title}</h3>
+            <ul>
+              {text[lang].userGroups.researchers.items.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="use-case-card">
+            <h3>{text[lang].userGroups.government.title}</h3>
+            <ul>
+              {text[lang].userGroups.government.items.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="use-case-card">
+            <h3>{text[lang].userGroups.agriculture.title}</h3>
+            <ul>
+              {text[lang].userGroups.agriculture.items.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </div>
+          
+          <div className="use-case-card">
+            <h3>{text[lang].userGroups.companies.title}</h3>
+            <ul>
+              {text[lang].userGroups.companies.items.map((item, index) => (
+                <li key={index}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="cta-section">
+        <h2>{text[lang].callToAction}</h2>
+        <button className="cta-button">{text[lang].startNow}</button>
+      </section>
+
+      <footer className="footer">
+        <div className="footer-content">
+          <div className="footer-logo">
+            <span>GIS Chat</span>
+            <p>© 2025 GIS Chat. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
-}
+};
 
-export default WelcomeScreen;
+export default HomePage;

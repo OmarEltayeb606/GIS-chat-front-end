@@ -1,0 +1,126 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  background: var(--header-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.logo {
+  height: 40px;
+}
+
+.logo img {
+  height: 100%;
+  width: auto;
+}
+
+.notification-bar {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100vw;
+  height: 60px;
+  background: var(--notification-bg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.notification-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-left: auto;
+}
+
+.language-switch,
+.theme-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--control-bg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.language-switch:hover,
+.theme-switch:hover {
+  background: var(--control-hover-bg);
+  transform: translateY(-2px);
+}
+
+.language-switch i,
+.theme-switch i {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.language-switch span {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+/* Dark mode styles */
+[data-theme='dark'] .header {
+  background: var(--dark-header-bg);
+}
+
+[data-theme='dark'] .notification-bar {
+  background: var(--dark-notification-bg);
+}
+
+[data-theme='dark'] .language-switch,
+[data-theme='dark'] .theme-switch {
+  background: var(--dark-control-bg);
+}
+
+[data-theme='dark'] .language-switch:hover,
+[data-theme='dark'] .theme-switch:hover {
+  background: var(--dark-control-hover-bg);
+}
+
+/* RTL support */
+[dir='rtl'] .notification-controls {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .header-content {
+    padding: 0.5rem;
+  }
+
+  .logo img {
+    height: 30px;
+  }
+
+  .language-switch span {
+    display: none;
+  }
+
+  .language-switch,
+  .theme-switch {
+    padding: 8px;
+  }
+} 

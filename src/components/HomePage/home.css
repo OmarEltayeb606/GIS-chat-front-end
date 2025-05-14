@@ -3,7 +3,9 @@
 .home-container {
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 100%; /* لضمان العرض الكامل */
+  margin: 0;
+  padding: 0;
 }
 
 .explore-sections {
@@ -12,6 +14,7 @@
   align-items: center;
   padding: 60px 20px;
   background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+  width: 100%; /* لضمان العرض الكامل */
 }
 
 .section-wrapper {
@@ -21,8 +24,7 @@
 }
 
 .cta-section {
-  width: 100%;
-  max-width: 1200px;
+  width: 100%; /* لضمان العرض الكامل */
   text-align: center;
   padding: 80px 20px;
   background: linear-gradient(135deg, #3B82F6 0%, #1E3A8A 100%);
@@ -30,6 +32,7 @@
   color: white;
   margin: 40px 0 60px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: none; /* إزالة التقييد الأقصى */
 }
 
 .cta-section h2 {

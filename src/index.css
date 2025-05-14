@@ -1,12 +1,15 @@
 * {
   box-sizing: border-box;
 }
+
 html, body, #root {
   height: 100%;
+  width: 100%; /* لضمان العرض الكامل */
   margin: 0;
   padding: 0;
-  /* overflow: hidden; */
+  overflow-x: hidden; /* منع التمرير الأفقي */
 }
+
 body {
   margin: 0;
   padding: 0;
