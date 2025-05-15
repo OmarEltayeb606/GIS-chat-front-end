@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './welcomeScreen.css';
+import { useLanguage } from './../../context/LanguageContext';
+import { useTheme } from './../../context/ThemeContext';
 
 // استيراد الصور
 const images = {
@@ -11,51 +13,16 @@ const images = {
 };
 
 const HomePage = () => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState('ar'); // افتراضي باللغة العربية
+  const { lang } = useLanguage();
+  const { isDark } = useTheme();
   const [animated, setAnimated] = useState(false);
 
   useEffect(() => {
-    // تحقق من التفضيلات المحفوظة
-    const savedMode = localStorage.getItem('darkMode');
-    const savedLang = localStorage.getItem('language');
-    
-    if (savedMode) {
-      setDarkMode(savedMode === 'true');
-    } else {
-      // التحقق من تفضيل النظام
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(prefersDark);
-    }
-    
-    if (savedLang) {
-      setLang(savedLang);
-    }
-    
     // تفعيل الحركات بعد تحميل الصفحة
     setTimeout(() => {
       setAnimated(true);
     }, 100);
   }, []);
-
-  useEffect(() => {
-    // حفظ التفضيلات في التخزين المحلي
-    localStorage.setItem('darkMode', darkMode);
-    localStorage.setItem('language', lang);
-    
-    // تطبيق الوضع على العنصر الأساسي (html)
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-  }, [darkMode, lang]);
-
-  // تبديل الوضع المظلم/الفاتح
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  // تبديل اللغة
-  const toggleLanguage = () => {
-    setLang(lang === 'ar' ? 'en' : 'ar');
-  };
 
   // نصوص الموقع بناءً على اللغة المختارة
   const text = {
@@ -130,11 +97,7 @@ const HomePage = () => {
         }
       },
       callToAction: 'ابدأ رحلتك مع GIS Chat الآن',
-      startNow: 'استكشف المنصة',
-      theme: 'السمة:',
-      light: 'فاتح',
-      dark: 'داكن',
-      language: 'اللغة:'
+      startNow: 'استكشف المنصة'
     },
     en: {
       title: 'GIS Chat',
@@ -207,47 +170,14 @@ const HomePage = () => {
         }
       },
       callToAction: 'Start your journey with GIS Chat now',
-      startNow: 'Explore the Platform',
-      theme: 'Theme:',
-      light: 'Light',
-      dark: 'Dark',
-      language: 'Language:'
+      startNow: 'Explore the Platform'
     }
   };
 
   return (
-    <div className={`home-container ${darkMode ? 'dark-mode' : 'light-mode'} ${lang === 'ar' ? 'rtl' : 'ltr'} ${animated ? 'animated' : ''}`}>
-      <div className="settings-bar">
-        {/* زر تغيير اللغة */}
-        <div className="toggle-group">
-          <span>{text[lang].language}</span>
-          <button 
-            className="toggle-button language-toggle" 
-            onClick={toggleLanguage}
-            aria-label={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
-          >
-            {lang === 'ar' ? 'EN' : 'عربي'}
-          </button>
-        </div>
-        
-        {/* زر تغيير المظهر */}
-        <div className="toggle-group">
-          <span>{text[lang].theme}</span>
-          <button 
-            className={`toggle-button mode-toggle ${darkMode ? 'dark' : 'light'}`} 
-            onClick={toggleDarkMode}
-            aria-label={darkMode ? text[lang].light : text[lang].dark}
-          >
-            <span className="toggle-slider"></span>
-            <span className="toggle-icon">{darkMode ? '🌙' : '☀️'}</span>
-          </button>
-        </div>
-      </div>
-
+    <div className={`home-container ${isDark ? 'dark-mode' : 'light-mode'} ${lang === 'ar' ? 'rtl' : 'ltr'} ${animated ? 'animated' : ''}`}>
       <header className="home-header">
-        <div className="logo-container">
-          <div className="logo">GIS Chat</div>
-        </div>
+        <div id='filler'></div>
         <h1 className="main-title">{text[lang].title}</h1>
         <h2 className="subtitle">{text[lang].subtitle}</h2>
         <p className="description">{text[lang].description}</p>
@@ -255,7 +185,7 @@ const HomePage = () => {
 
       <section className="features-section">
         <h2 className="section-title">{text[lang].whatWeOffer}</h2>
-        
+
         <div className="features-grid">
           <div className="feature-card">
             <div className="feature-image-container">
@@ -264,7 +194,7 @@ const HomePage = () => {
             <h3>{text[lang].features.satelliteAnalysis.title}</h3>
             <p>{text[lang].features.satelliteAnalysis.description}</p>
           </div>
-          
+
           <div className="feature-card">
             <div className="feature-image-container">
               <img src={images.vectorAnalysis} alt="معالجة ملفات الفيكتور" className="feature-image" />
@@ -272,7 +202,7 @@ const HomePage = () => {
             <h3>{text[lang].features.vectorAnalysis.title}</h3>
             <p>{text[lang].features.vectorAnalysis.description}</p>
           </div>
-          
+
           <div className="feature-card">
             <div className="feature-image-container">
               <img src={images.satImagery} alt="تحليل بيانات الراستر" className="feature-image" />
@@ -280,7 +210,7 @@ const HomePage = () => {
             <h3>{text[lang].features.rasterAnalysis.title}</h3>
             <p>{text[lang].features.rasterAnalysis.description}</p>
           </div>
-          
+
           <div className="feature-card">
             <div className="feature-image-container">
               <img src={images.aiProcessing} alt="الذكاء الاصطناعي" className="feature-image" />
@@ -288,7 +218,7 @@ const HomePage = () => {
             <h3>{text[lang].features.ai.title}</h3>
             <p>{text[lang].features.ai.description}</p>
           </div>
-          
+
           <div className="feature-card">
             <div className="feature-image-container">
               <img src={images.dataVisualization} alt="تصور البيانات" className="feature-image" />
@@ -296,7 +226,7 @@ const HomePage = () => {
             <h3>{text[lang].features.dataVisualization.title}</h3>
             <p>{text[lang].features.dataVisualization.description}</p>
           </div>
-          
+
           <div className="feature-card">
             <div className="feature-image-container">
               <img src="https://storage.googleapis.com/gweb-research2023-media/original_images/GeospatialReasoning1_OverviewHERO.png" alt="حلول سحابية" className="feature-image" />
@@ -309,7 +239,7 @@ const HomePage = () => {
 
       <section className="use-cases-section">
         <h2 className="section-title">{text[lang].whyNeedUs}</h2>
-        
+
         <div className="use-cases-grid">
           <div className="use-case-card">
             <h3>{text[lang].userGroups.researchers.title}</h3>
@@ -319,7 +249,7 @@ const HomePage = () => {
               ))}
             </ul>
           </div>
-          
+
           <div className="use-case-card">
             <h3>{text[lang].userGroups.government.title}</h3>
             <ul>
@@ -328,7 +258,7 @@ const HomePage = () => {
               ))}
             </ul>
           </div>
-          
+
           <div className="use-case-card">
             <h3>{text[lang].userGroups.agriculture.title}</h3>
             <ul>
@@ -337,7 +267,7 @@ const HomePage = () => {
               ))}
             </ul>
           </div>
-          
+
           <div className="use-case-card">
             <h3>{text[lang].userGroups.companies.title}</h3>
             <ul>
@@ -347,11 +277,6 @@ const HomePage = () => {
             </ul>
           </div>
         </div>
-      </section>
-
-      <section className="cta-section">
-        <h2>{text[lang].callToAction}</h2>
-        <button className="cta-button">{text[lang].startNow}</button>
       </section>
 
       <footer className="footer">

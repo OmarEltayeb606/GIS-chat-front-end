@@ -54,15 +54,36 @@ function Home() {
         initial="hidden"
         animate={controls}
         className="explore-sections"
-      > */}
-        {/* <motion.div variants={childVariants} className="section-wrapper">
+      >
+        <motion.div variants={childVariants} className="section-wrapper">
           <ExploreWithUsVector />
         </motion.div>
         
         <motion.div variants={childVariants} className="section-wrapper">
           <ExploreWithUsRaster />
-        </motion.div> */}
-      {/* </motion.div> */}
+        </motion.div>
+        
+        <motion.div variants={childVariants} className="cta-section">
+          <h2>Ready to Transform Your Geospatial Data?</h2>
+          <p>Our platform provides the tools you need to analyze, visualize, and extract insights from your geographic data.</p>
+          <div className="cta-buttons">
+            <motion.button 
+              className="cta-primary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Try It Now
+            </motion.button>
+            <motion.button 
+              className="cta-secondary"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Learn More
+            </motion.button>
+          </div>
+        </motion.div>
+      </motion.div> */}
     </section>
   );
 }
