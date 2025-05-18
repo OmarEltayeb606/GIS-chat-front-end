@@ -8,32 +8,62 @@ const Navbar = () => {
   const { lang, toggleLanguage } = useLanguage();
   const { isDark, toggleTheme } = useTheme();
 
+  // نصوص الـ Navbar بناءً على اللغة
+  const navText = {
+    ar: {
+      home: 'الرئيسية',
+      mapView: 'عرض الخريطة',
+      imgView: 'عرض الصور',
+      ai: 'الذكاء الاصطناعي',
+      about: 'حول',
+      language: 'اللغة:',
+      theme: 'السمة:',
+      switchToEnglish: 'Switch to English',
+      switchToArabic: 'التبديل إلى العربية',
+      light: 'فاتح',
+      dark: 'داكن'
+    },
+    en: {
+      home: 'Home',
+      mapView: 'Map View',
+      imgView: 'Image View',
+      ai: 'AI',
+      about: 'About',
+      language: 'Language:',
+      theme: 'Theme:',
+      switchToEnglish: 'Switch to English',
+      switchToArabic: 'Switch to Arabic',
+      light: 'Light',
+      dark: 'Dark'
+    }
+  };
+
   return (
-    <nav className="navbar">
+    <nav className={`navbar ${lang === 'ar' ? 'rtl' : 'ltr'} ${isDark ? 'dark-mode' : 'light-mode'}`}>
       <ul>
-        <li><Link to="/">الرئيسية</Link></li>
-        <li><Link to="/mapView">عرض الخريطة</Link></li>
-        <li><Link to="/imgView">عرض الصور</Link></li>
-        <li><Link to="/ai">الذكاء الاصطناعي</Link></li>
-        <li><Link to="/about">حول</Link></li>
+        <li><Link to="/">{navText[lang].home}</Link></li>
+        <li><Link to="/mapView">{navText[lang].mapView}</Link></li>
+        <li><Link to="/imgView">{navText[lang].imgView}</Link></li>
+        <li><Link to="/ai">{navText[lang].ai}</Link></li>
+        <li><Link to="/about">{navText[lang].about}</Link></li>
       </ul>
       <div className="navbar-controls">
         <div className="toggle-group">
-          <span>{lang === 'ar' ? 'اللغة:' : 'Language:'}</span>
+          <span>{navText[lang].language}</span>
           <button
             className="toggle-button language-toggle"
             onClick={toggleLanguage}
-            aria-label={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
+            aria-label={lang === 'ar' ? navText[lang].switchToEnglish : navText[lang].switchToArabic}
           >
             {lang === 'ar' ? 'EN' : 'عربي'}
           </button>
         </div>
         <div className="toggle-group">
-          <span>{lang === 'ar' ? 'السمة:' : 'Theme:'}</span>
+          <span>{navText[lang].theme}</span>
           <button
             className={`toggle-button mode-toggle ${isDark ? 'dark' : 'light'}`}
             onClick={toggleTheme}
-            aria-label={isDark ? (lang === 'ar' ? 'فاتح' : 'Light') : (lang === 'ar' ? 'داكن' : 'Dark')}
+            aria-label={isDark ? navText[lang].light : navText[lang].dark}
           >
             <span className="toggle-slider"></span>
             <span className="toggle-icon">{isDark ? '🌙' : '☀️'}</span>

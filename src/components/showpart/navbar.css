@@ -4,8 +4,8 @@
   left: 0;
   right: 0;
   height: 60px;
-  background-color: #007bff;
-  color: #ffffff;
+  background-color: var(--header-bg);
+  color: var(--text-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -14,7 +14,7 @@
   z-index: 1100;
   box-sizing: border-box;
   animation: fadeIn 1s ease forwards;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
+  box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .navbar ul {
@@ -31,7 +31,7 @@
 }
 
 .navbar a {
-  color: #ffffff;
+  color: var(--text-color);
   text-decoration: none;
   font-size: 16px;
   transition: color 0.3s ease, text-decoration 0.3s ease;
@@ -39,7 +39,7 @@
 
 .navbar a:hover {
   text-decoration: underline;
-  color: #cce5ff;
+  color: var(--hover-bg);
 }
 
 /* تنسيق الأزرار */
@@ -69,19 +69,19 @@
 
 /* زر تبديل اللغة */
 .language-toggle {
-  background-color: #0056b3;
-  color: white;
+  background-color: var(--button-bg);
+  color: var(--text-color);
   width: 50px;
   height: 30px;
 }
 
 .language-toggle:hover {
-  background-color: #003d82;
+  background-color: var(--button-hover);
 }
 
 /* زر تبديل الوضع المظلم/الفاتح */
 .mode-toggle {
-  background-color: #ffffff;
+  background-color: var(--button-bg);
   border-radius: 20px;
   width: 60px;
   height: 30px;
@@ -91,7 +91,7 @@
 }
 
 .mode-toggle.dark {
-  background-color: #1a1a2e;
+  background-color: var(--button-hover);
 }
 
 .toggle-slider {
@@ -100,16 +100,16 @@
   left: 4px;
   width: 22px;
   height: 22px;
-  background-color: #007bff;
+  background-color: var(--text-color);
   border-radius: 50%;
   transition: transform 0.2s ease;
   z-index: 2;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 .mode-toggle.dark .toggle-slider {
   transform: translateX(30px);
-  background-color: #ffffff;
+  background-color: var(--text-color);
 }
 
 .toggle-icon {
@@ -125,12 +125,12 @@
   left: 10px;
 }
 
-/* تحسين لاتجاه النص العربي */
-.rtl .navbar-controls {
+/* تحسين لاتجاه النص */
+.rtl {
   direction: rtl;
 }
 
-.ltr .navbar-controls {
+.ltr {
   direction: ltr;
 }
 

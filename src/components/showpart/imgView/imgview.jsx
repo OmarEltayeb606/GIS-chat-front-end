@@ -1,95 +1,142 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { useLanguage } from '../../../context/LanguageContext';
+import { useTheme } from '../../../context/ThemeContext';
+import './imgview.css';
 
 const ImgView = () => {
-  const [imageUrl, setImageUrl] = useState(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [brightness, setBrightness] = useState(100);
-  const [contrast, setContrast] = useState(100);
-  const [saturation, setSaturation] = useState(100);
-  const [fileName, setFileName] = useState('');
-  const [metadata, setMetadata] = useState(null);
+  const { lang } = useLanguage();
+  const { isDark } = useTheme();
+  const [imageData, setImageData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [file, setFile] = useState(null);
   const transformComponentRef = useRef(null);
-  const imageRef = useRef(null);
+  const displayRef = useRef(null);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
+  const text = {
+    ar: {
+      title: 'عارض الصور المتقدم',
+      subtitle: 'قم بتحميل الصور الجغرافية لتحويلها',
+      uploadButton: 'اختر صورة',
+      uploadPrompt: 'قم بتحميل صورة لبدء العمل',
+      loading: 'جاري التحميل...',
+      loadError: 'فشل في تحميل الصورة. حاول مرة أخرى أو استخدم صورة مختلفة.',
+      timeoutError: 'انتهت مهلة تحميل الصورة. حاول مرة أخرى أو تحقق من اتصالك بالخادم.',
+      supportedFormats: 'الصيغ المدعومة: JPEG، PNG، TIFF',
+      alert: 'صيغة ملف غير مدعومة. يرجى تحميل صورة بصيغة JPEG، PNG، أو TIFF.',
+      processingError: 'فشل في معالجة الصورة. تأكد من أن الملف صالح أو جرب ملفًا آخر.',
+      serverError: 'فشل في الاتصال بالخادم لمعالجة الصورة. تأكد من أن الخادم يعمل.',
+      zoomIn: 'تكبير',
+      zoomOut: 'تصغير',
+      resetZoom: 'إعادة تعيين',
+    },
+    en: {
+      title: 'Advanced Image Viewer',
+      subtitle: 'Upload geospatial imagery for conversion',
+      uploadButton: 'Choose Image',
+      uploadPrompt: 'Upload an image to begin',
+      loading: 'Loading...',
+      loadError: 'Failed to load the image. Please try again or use a different image.',
+      timeoutError: 'Image loading timed out. Please try again or check your server connection.',
+      supportedFormats: 'Supported formats: JPEG, PNG, TIFF',
+      alert: 'Unsupported file format. Please upload JPEG, PNG, or TIFF.',
+      processingError: 'Failed to process the image. Ensure the file is valid or try another file.',
+      serverError: 'Failed to connect to the server to process the image. Ensure the server is running.',
+      zoomIn: 'Zoom In',
+      zoomOut: 'Zoom Out',
+      resetZoom: 'Reset',
+    }
+  };
+
+  const handleImageChange = async (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
       const validTypes = ['image/jpeg', 'image/png', 'image/tiff'];
-      if (!validTypes.includes(file.type)) {
-        alert('Unsupported file format. Please upload JPEG, PNG, or TIFF.');
+      if (!validTypes.includes(selectedFile.type)) {
+        alert(text[lang].alert);
         return;
       }
-      setFileName(file.name);
-      const url = URL.createObjectURL(file);
-      setImageUrl(url);
+      setFile(selectedFile);
+      setIsLoading(true);
+      setError(null);
+      setImageData(null);
+
+      const timeout = setTimeout(() => {
+        setIsLoading(false);
+        setError(text[lang].timeoutError);
+        console.error('Image loading timed out after 10 seconds.');
+      }, 10000);
+
+      try {
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        const response = await fetch('http://localhost:8000/convert-tiff', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+          console.error('Backend error:', result.error);
+          alert(text[lang].processingError);
+          setIsLoading(false);
+          clearTimeout(timeout);
+          return;
+        }
+
+        setImageData(`data:image/png;base64,${result.data}`);
+        setIsLoading(false);
+        clearTimeout(timeout);
+      } catch (error) {
+        console.error('Error uploading image to backend:', error);
+        alert(text[lang].serverError);
+        setIsLoading(false);
+        setError(text[lang].serverError);
+        clearTimeout(timeout);
+      }
     }
   };
 
-  const handleImageLoad = (e) => {
-    const img = e.target;
-    const dimensions = `${img.naturalWidth} x ${img.naturalHeight}`;
-    const aspectRatio = (img.naturalWidth / img.naturalHeight).toFixed(2);
-    setMetadata({
-      dimensions,
-      aspectRatio,
-      size: fileName ? `${(fileName.size / 1024).toFixed(2)} KB` : 'Unknown',
-    });
+  const handleZoomIn = () => {
+    transformComponentRef.current?.zoomIn(0.2);
   };
 
-  const resetZoom = () => {
-    if (transformComponentRef.current) {
-      const { resetTransform } = transformComponentRef.current;
-      resetTransform();
-    }
+  const handleZoomOut = () => {
+    transformComponentRef.current?.zoomOut(0.2);
   };
 
-  const resetFilters = () => {
-    setBrightness(100);
-    setContrast(100);
-    setSaturation(100);
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch((err) => {
-        console.error(`Error enabling fullscreen: ${err.message}`);
-      });
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  };
-
-  const toggleEditMode = () => {
-    setIsEditing(!isEditing);
-  };
-
-  const filterStyle = {
-    filter: `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%)`,
+  const handleResetZoom = () => {
+    transformComponentRef.current?.resetTransform();
   };
 
   useEffect(() => {
-    return () => {
-      if (imageUrl) {
-        URL.revokeObjectURL(imageUrl);
+    const preventScroll = (e) => {
+      if (displayRef.current && displayRef.current.contains(e.target)) {
+        e.preventDefault();
       }
     };
-  }, [imageUrl]);
+
+    window.addEventListener('wheel', preventScroll, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', preventScroll);
+    };
+  }, []);
 
   return (
     <motion.div 
-      className={`imgview-container ${isFullscreen ? 'fullscreen' : ''}`}
+      className={`imgview-container ${isDark ? 'dark-mode' : 'light-mode'} ${lang === 'ar' ? 'rtl' : 'ltr'}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
+      <div id='filler'></div>
       <div className="imgview-header">
-        <h1>Advanced Image Viewer</h1>
-        <p>Upload, zoom, pan, and analyze your geospatial imagery</p>
+        <h1>{text[lang].title}</h1>
+        <p>{text[lang].subtitle}</p>
       </div>
 
       <div className="controls-wrapper">
@@ -102,7 +149,7 @@ const ImgView = () => {
           <div className="control-group">
             <label htmlFor="image-upload" className="upload-button">
               <span className="icon">📂</span>
-              Choose Image
+              {text[lang].uploadButton}
             </label>
             <input
               id="image-upload"
@@ -112,105 +159,12 @@ const ImgView = () => {
               style={{ display: 'none' }}
             />
           </div>
-
-          <div className="control-group buttons">
-            <motion.button 
-              onClick={resetZoom} 
-              disabled={!imageUrl}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="control-button"
-              aria-label="Reset image zoom"
-            >
-              <span className="icon">🔍</span>
-              Reset View
-            </motion.button>
-            
-            <motion.button 
-              onClick={toggleEditMode} 
-              disabled={!imageUrl}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`control-button ${isEditing ? 'active' : ''}`}
-              aria-label={isEditing ? 'Exit edit mode' : 'Enter edit mode'}
-            >
-              <span className="icon">✏️</span>
-              {isEditing ? 'Exit Edit' : 'Edit Image'}
-            </motion.button>
-            
-            <motion.button 
-              onClick={toggleFullscreen} 
-              disabled={!imageUrl}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="control-button"
-              aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
-            >
-              <span className="icon">{isFullscreen ? '⤓' : '⤢'}</span>
-              {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
-            </motion.button>
-          </div>
         </motion.div>
-
-        <AnimatePresence>
-          {isEditing && imageUrl && (
-            <motion.div 
-              className="editing-controls"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="slider-control">
-                <label>Brightness: {brightness}%</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="200"
-                  value={brightness}
-                  onChange={(e) => setBrightness(parseInt(e.target.value))}
-                />
-              </div>
-              
-              <div className="slider-control">
-                <label>Contrast: {contrast}%</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="200"
-                  value={contrast}
-                  onChange={(e) => setContrast(parseInt(e.target.value))}
-                />
-              </div>
-              
-              <div className="slider-control">
-                <label>Saturation: {saturation}%</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="200"
-                  value={saturation}
-                  onChange={(e) => setSaturation(parseInt(e.target.value))}
-                />
-              </div>
-              
-              <motion.button 
-                onClick={resetFilters}
-                className="reset-filters-button"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                aria-label="Reset image filters"
-              >
-                Reset Filters
-              </motion.button>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       <div className="imgview-main">
-        <div className="imgview-border">
-          {!imageUrl && (
+        <div className="imgview-border" ref={displayRef}>
+          {!imageData && !isLoading && !error && (
             <motion.div 
               className="placeholder"
               animate={{ 
@@ -224,110 +178,87 @@ const ImgView = () => {
               }}
             >
               <div className="upload-icon">🖼️</div>
-              <p>Upload an image to begin</p>
-              <p className="supported-formats">Supported formats: JPEG, PNG, TIFF</p>
+              <p>{text[lang].uploadPrompt}</p>
+              <p className="supported-formats">{text[lang].supportedFormats}</p>
             </motion.div>
           )}
           
-          {imageUrl && (
-            <TransformWrapper
-              ref={transformComponentRef}
-              initialScale={1}
-              minScale={0.1}
-              maxScale={10}
-              centerOnInit={true}
-              limitToBounds={false}
-              wheel={{ step: 0.1 }}
-            >
-              {({ zoomIn, zoomOut, resetTransform }) => (
-                <React.Fragment>
-                  <div className="zoom-controls">
-                    <motion.button 
-                      onClick={() => zoomIn()}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="zoom-button"
-                      aria-label="Zoom in"
-                    >
-                      +
-                    </motion.button>
-                    <motion.button 
-                      onClick={() => zoomOut()}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="zoom-button"
-                      aria-label="Zoom out"
-                    >
-                      -
-                    </motion.button>
-                    <motion.button 
-                      onClick={() => resetTransform()}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      className="zoom-button reset"
-                      aria-label="Reset zoom"
-                    >
-                      ↺
-                    </motion.button>
-                  </div>
-                  
-                  <TransformComponent>
-                    <img
-                      ref={imageRef}
-                      src={imageUrl}
-                      alt="Uploaded image"
-                      style={filterStyle}
-                      onLoad={handleImageLoad}
-                      className="viewer-image"
-                    />
-                  </TransformComponent>
-                </React.Fragment>
-              )}
-            </TransformWrapper>
-          )}
-        </div>
-        
-        <AnimatePresence>
-          {imageUrl && metadata && (
+          {isLoading && (
             <motion.div 
-              className="image-metadata"
+              className="placeholder"
+              animate={{ 
+                scale: [1, 1.02, 1],
+                opacity: [0.7, 0.8, 0.7] 
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity,
+                repeatType: "reverse" 
+              }}
+            >
+              <div className="upload-icon">⏳</div>
+              <p>{text[lang].loading}</p>
+            </motion.div>
+          )}
+          
+          {error && (
+            <motion.div 
+              className="placeholder error"
+              animate={{ 
+                scale: [1, 1.02, 1],
+                opacity: [0.7, 0.8, 0.7] 
+              }}
+              transition={{ 
+                duration: 3, 
+                repeat: Infinity,
+                repeatType: "reverse" 
+              }}
+            >
+              <div className="upload-icon">❌</div>
+              <p>{error}</p>
+            </motion.div>
+          )}
+          
+          {imageData && !isLoading && !error && (
+            <motion.div 
+              className="image-display"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.4 }}
             >
-              <h3>Image Information</h3>
-              <div className="metadata-grid">
-                <div className="metadata-item">
-                  <span className="label">File Name:</span>
-                  <span className="value">{fileName}</span>
-                </div>
-                <div className="metadata-item">
-                  <span className="label">Dimensions:</span>
-                  <span className="value">{metadata.dimensions}</span>
-                </div>
-                <div className="metadata-item">
-                  <span className="label">Aspect Ratio:</span>
-                  <span className="value">{metadata.aspectRatio}</span>
-                </div>
-                <div className="metadata-item">
-                  <span className="label">File Size:</span>
-                  <span className="value">{metadata.size}</span>
-                </div>
+              <TransformWrapper
+                initialScale={1}
+                minScale={0.5}
+                maxScale={3}
+                ref={transformComponentRef}
+                wheel={{ step: 0.1 }}
+                pinch={{ step: 0.1 }}
+                doubleClick={{ disabled: true }}
+                centerOnInit
+                centerZoomedOut
+              >
+                <TransformComponent>
+                  <img
+                    src={imageData}
+                    alt="Converted Image"
+                    className="viewer-image"
+                  />
+                </TransformComponent>
+              </TransformWrapper>
+              <div className="zoom-controls">
+                <button onClick={handleZoomIn} className="zoom-button" title={text[lang].zoomIn}>
+                  +
+                </button>
+                <button onClick={handleZoomOut} className="zoom-button" title={text[lang].zoomOut}>
+                  -
+                </button>
+                <button onClick={handleResetZoom} className="zoom-button reset" title={text[lang].resetZoom}>
+                  ↺
+                </button>
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
-      </div>
-      
-      <div className="image-tips">
-        <h3>Tips</h3>
-        <ul>
-          <li>Use the mouse wheel to zoom in and out</li>
-          <li>Click and drag to pan around the image</li>
-          <li>Use the edit tools to adjust brightness, contrast, and saturation</li>
-          <li>Enable fullscreen mode for a better viewing experience</li>
-        </ul>
+        </div>
       </div>
     </motion.div>
   );
