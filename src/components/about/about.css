@@ -581,6 +581,7 @@ body {
 .footer-logo p {
   font-size: var(--small-font-size);
   opacity: 0.7;
+  color: black;
 }
 
 /* التحريكات */
@@ -683,6 +684,503 @@ body {
   .settings-bar {
     justify-content: center;
     flex-wrap: wrap;
+  }
+  
+  .about-header {
+    height: auto;
+    min-height: 300px;
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+  
+  .contact-join-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --heading-font-size: 1.8rem;
+    --subtitle-font-size: 1.1rem;
+    --regular-font-size: 0.9rem;
+    --small-font-size: 0.8rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .about-section {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .value-card,
+  .team-card,
+  .contact-join-card {
+    padding: var(--spacing-md);
+  }
+}
+
+.subtitle {
+  font-size: var(--subtitle-font-size);
+  opacity: 0.9;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* القسم العام */
+.about-section {
+  padding: var(--spacing-xl) var(--spacing-md);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+  display: inline-block;
+  padding-bottom: var(--spacing-sm);
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--primary-color);
+}
+
+.section-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xl);
+}
+
+.reversed {
+  flex-direction: row-reverse;
+}
+
+.rtl .reversed {
+  flex-direction: row;
+}
+
+.rtl .section-content:not(.reversed) {
+  flex-direction: row-reverse;
+}
+
+.text-content {
+  flex: 1;
+}
+
+.text-content h2 {
+  margin-bottom: var(--spacing-md);
+  color: var(--primary-color);
+}
+
+.text-content p {
+  margin-bottom: var(--spacing-md);
+  line-height: 1.8;
+}
+
+.image-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-image {
+  width: 100%;
+  max-width: 500px;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  transition: transform var(--transition-speed);
+}
+
+.about-image:hover {
+  transform: scale(1.02);
+}
+
+/* قسم القيم */
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+}
+
+.value-card {
+  background-color: var(--card-bg-light);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-lg);
+  box-shadow: var(--box-shadow);
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+  border: 1px solid var(--card-border-light);
+}
+
+.dark-mode .value-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--card-border-dark);
+}
+
+.value-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dark-mode .value-card:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.value-card h3 {
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-md);
+  position: relative;
+  padding-bottom: var(--spacing-sm);
+}
+
+.value-card h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
+.rtl .value-card h3::after {
+  left: auto;
+  right: 0;
+}
+
+/* قسم الفريق */
+.team-intro {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto var(--spacing-xl);
+  line-height: 1.8;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.team-card {
+  background-color: var(--card-bg-light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
+  transition: transform var(--transition-speed);
+  border: 1px solid var(--card-border-light);
+}
+
+.dark-mode .team-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--card-border-dark);
+}
+
+.team-card:hover {
+  transform: translateY(-5px);
+}
+
+.team-image-container {
+  height: 200px;
+  overflow: hidden;
+}
+
+.team-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-speed);
+}
+
+.team-card:hover .team-image {
+  transform: scale(1.05);
+}
+
+.team-info {
+  padding: var(--spacing-lg);
+}
+
+.team-info h3 {
+  margin-bottom: var(--spacing-sm);
+  color: var(--primary-color);
+}
+
+.team-info h4 {
+  font-size: var(--small-font-size);
+  color: var(--primary-dark);
+  margin-bottom: var(--spacing-md);
+  opacity: 0.8;
+}
+
+.dark-mode .team-info h4 {
+  color: var(--primary-light);
+}
+
+.team-info p {
+  font-size: var(--small-font-size);
+  line-height: 1.6;
+}
+
+/* قسم التكنولوجيا */
+.technology-list {
+  list-style-position: inside;
+  margin-top: var(--spacing-md);
+}
+
+.technology-list li {
+  margin-bottom: var(--spacing-sm);
+  position: relative;
+  padding-left: var(--spacing-md);
+}
+
+.rtl .technology-list li {
+  padding-left: 0;
+  padding-right: var(--spacing-md);
+}
+
+.technology-list li::before {
+  content: '•';
+  color: var(--primary-color);
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.rtl .technology-list li::before {
+  left: auto;
+  right: 0;
+}
+
+/* قسم التواصل والانضمام */
+.contact-join-section {
+  background-color: var(--secondary-bg-light);
+  padding: var(--spacing-xl) var(--spacing-md);
+  margin-top: var(--spacing-xl);
+}
+
+.dark-mode .contact-join-section {
+  background-color: var(--secondary-bg-dark);
+}
+
+.contact-join-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+.contact-join-card {
+  background-color: var(--card-bg-light);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xl);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+  border: 1px solid var(--card-border-light);
+}
+
+.dark-mode .contact-join-card {
+  background-color: var(--card-bg-dark);
+  border-color: var(--card-border-dark);
+}
+
+.contact-join-card h2 {
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-lg);
+  position: relative;
+  padding-bottom: var(--spacing-sm);
+  display: inline-block;
+}
+
+.contact-join-card h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
+.contact-join-card p {
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.8;
+}
+
+.about-cta-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius);
+  font-size: var(--regular-font-size);
+  cursor: pointer;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+}
+
+.about-cta-button:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+/* التذييل */
+.footer {
+  background-color: var(--card-bg-light);
+  padding: var(--spacing-lg) var(--spacing-md);
+  border-top: 1px solid var(--card-border-light);
+}
+
+.dark-mode .footer {
+  background-color: var(--card-bg-dark);
+  border-color: var(--card-border-dark);
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer-logo {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-logo span {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: var(--spacing-sm);
+}
+
+.footer-logo p {
+  font-size: var(--small-font-size);
+  opacity: 0.7;
+}
+
+/* التحريكات */
+.animated .about-header {
+  animation: fadeIn 1s ease-in-out;
+}
+
+.animated .section-content {
+  animation: slideIn 1s ease-in-out;
+}
+
+.animated .value-card,
+.animated .team-card,
+.animated .contact-join-card {
+  animation: popIn 1s ease-in-out;
+  animation-fill-mode: both;
+}
+
+.animated .value-card:nth-child(1),
+.animated .team-card:nth-child(1),
+.animated .contact-join-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.animated .value-card:nth-child(2),
+.animated .team-card:nth-child(2),
+.animated .contact-join-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.animated .value-card:nth-child(3),
+.animated .team-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.animated .value-card:nth-child(4),
+.animated .team-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+.animated .team-card:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+.animated .team-card:nth-child(6) {
+  animation-delay: 0.6s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* تصميم ريسبونسف */
+@media (max-width: 992px) {
+  :root {
+    --heading-font-size: 2rem;
+    --subtitle-font-size: 1.2rem;
+  }
+  
+  .section-content {
+    flex-direction: column;
+  }
+  
+  .rtl .section-content,
+  .section-content.reversed {
+    flex-direction: column;
+  }
+  
+  .about-image {
+    max-width: 100%;
+    margin-top: var(--spacing-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-bar {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    font-size: 1.8rem;
   }
   
   .about-header {

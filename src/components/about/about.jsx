@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './about.css';
+import logo from './../../imgs/Create_a_professional_logo_for_a_GIS_Chat_applicat-1747661200450.png'
 
 // استيراد الصور (الصور الأصلية كما في الملف المرفوع)
 const images = {
   team1: "https://www.xyht.com/wp-content/uploads/2023/10/34-AI-Diagram.jpg",
   team2: "https://www.esri.com/content/dam/esrisites/en-us/arcgis/capabilities/capabilities-redesign-2022/imagery-remote-sensing/imagery-update-09-22/assets/imagery-sensing-content-switcher-geoai.jpg",
-  company: "https://www.mdpi.com/remotesensing/remotesensing-15-04112/article_deploy/html/images/remotesensing-15-04112-g011.png",
+  company: logo,
   technology: "https://storage.googleapis.com/gweb-research2023-media/original_images/GeospatialReasoning1_OverviewHERO.png",
   satellite: "https://s3.amazonaws.com/content.satimagingcorp.com/static/galleryimages/pleiades-neo-3-satellite-image.jpg",
   earthView: "https://www.abiresearch.com/hubfs/Imported_Blog_Media/image-20241030114703-1-1-1.jpeg",
@@ -129,13 +130,12 @@ const AboutPage = () => {
         'React.js لتطوير واجهة المستخدم التفاعلية',
         'ArcGIS API for JavaScript لعرض وتحليل البيانات المكانية',
         'Python مع مكتبات GeoPandas وRasterIO لمعالجة البيانات الجغرافية',
-        'TensorFlow و PyTorch لتطوير نماذج الذكاء الاصطناعي',
         'PostgreSQL مع امتداد PostGIS لتخزين وإدارة البيانات المكانية'
       ],
       contactUs: 'تواصل معنا',
-      contactText: 'إذا كان لديك أي استفسارات أو اقتراحات حول مشروعنا، يرجى التواصل معنا عبر البريد الإلكتروني geomatics.project@university.edu',
+      contactText: 'إذا كان لديك أي استفسارات أو اقتراحات حول مشروعنا، يرجى التواصل معنا عبر البريد الإلكتروني omar.eltayeb.w@gmail.com',
       joinUs: 'المشرف الأكاديمي',
-      joinUsText: 'نتقدم بالشكر للدكتور عبدالله الزهراني من قسم الجيوماتكس على إرشاده ودعمه المستمر خلال مراحل تطوير المشروع.',
+      joinUsText: 'نتقدم بالشكر للدكتور محمود خضر من قسم الجيوماتكس على إرشاده ودعمه المستمر خلال مراحل تطوير المشروع.',
       theme: 'السمة:',
       light: 'فاتح',
       dark: 'داكن',
@@ -215,9 +215,9 @@ const AboutPage = () => {
         'PostgreSQL with PostGIS extension for storing and managing spatial data'
       ],
       contactUs: 'Contact Us',
-      contactText: 'If you have any questions or suggestions about our project, please contact us via email at geomatics.project@university.edu',
+      contactText: 'If you have any questions or suggestions about our project, please contact us via email at omar.eltayeb.w@gmail.com',
       joinUs: 'Academic Supervisor',
-      joinUsText: 'We would like to thank Dr. Abdullah Al-Zahrani from the Geomatics Department for his guidance and continuous support during the project development stages.',
+      joinUsText: 'We would like to thank Dr. Mahmoud Khader from the Geomatics Department for his guidance and continuous support during the project development stages.',
       theme: 'Theme:',
       light: 'Light',
       dark: 'Dark',
@@ -257,7 +257,7 @@ const AboutPage = () => {
 
       <header className="about-header">
         <div className="logo-container">
-          <div className="logo">GIS Project</div>
+          <div className="logo">GIS chat</div>
         </div>
         <h1 className="main-title">{text[lang].title}</h1>
         <p className="subtitle">{text[lang].subtitle}</p>
@@ -348,7 +348,6 @@ const AboutPage = () => {
           <div className="contact-join-card">
             <h2>{text[lang].contactUs}</h2>
             <p>{text[lang].contactText}</p>
-            <button className="about-cta-button">{text[lang].startExploring}</button>
           </div>
           
           <div className="contact-join-card">
@@ -362,7 +361,7 @@ const AboutPage = () => {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-logo">
-            <span>GIS Project</span>
+            <span>GIS chat</span>
             <p>© 2025 Geomatics Student Project. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}</p>
           </div>
         </div>
