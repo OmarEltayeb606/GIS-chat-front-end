@@ -1,144 +1,321 @@
+/* متغيرات CSS لتخصيص الألوان والسمات */
+:root {
+  --header-bg: #ffffff; /* خلفية الـ Navbar في الوضع الفاتح */
+  --header-bg-dark: #1a202c; /* خلفية الـ Navbar في الوضع الداكن */
+  --text-color: #2d3748; /* لون النص في الوضع الفاتح */
+  --text-color-dark: #e2e8f0; /* لون النص في الوضع الداكن */
+  --hover-bg: #3182ce; /* لون التحويم */
+  --button-bg: #4a5568; /* خلفية الأزرار */
+  --button-hover: #2b6cb0; /* خلفية الأزرار عند التحويم */
+  --shadow-color: rgba(0, 0, 0, 0.1); /* لون الظل */
+  --shadow-color-dark: rgba(0, 0, 0, 0.3); /* لون الظل في الوضع الداكن */
+  --accent-color: #2b6cb0; /* لون مميز للتأكيد */
+}
+
+/* إعادة تعيين التنسيقات الأساسية */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* تنسيق الـ Navbar */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 64px;
   background-color: var(--header-bg);
   color: var(--text-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  margin: 0;
-  z-index: 1100;
-  box-sizing: border-box;
-  animation: fadeIn 1s ease forwards;
-  box-shadow: 0 2px 8px var(--shadow-color);
+  padding: 0 30px;
+  z-index: 1000;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  animation: slideIn 0.5s ease forwards;
 }
 
-.navbar ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-grow: 1;
-  justify-content: center;
+/* الوضع الداكن */
+.navbar.dark-mode {
+  background-color: var(--header-bg-dark);
+  color: var(--text-color-dark);
+  box-shadow: 0 4px 6px var(--shadow-color-dark);
 }
 
-.navbar li {
-  margin: 0 20px;
+/* اتجاه النص */
+.navbar.rtl {
+  direction: rtl;
 }
 
-.navbar a {
-  color: var(--text-color);
+.navbar.ltr {
+  direction: ltr;
+}
+
+/* تنسيق العلامة التجارية */
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.navbar-brand a {
+  color: inherit;
   text-decoration: none;
-  font-size: 16px;
-  transition: color 0.3s ease, text-decoration 0.3s ease;
+  transition: color 0.3s ease;
 }
 
-.navbar a:hover {
-  text-decoration: underline;
+.navbar-brand a:hover {
   color: var(--hover-bg);
 }
 
-/* تنسيق الأزرار */
+/* تنسيق قائمة الروابط */
+.navbar-links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navbar-links li {
+  margin: 0;
+}
+
+.navbar-links a {
+  color: inherit;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.navbar-links a:hover {
+  background-color: var(--hover-bg);
+  color: #ffffff;
+}
+
+/* زر تسجيل الخروج */
+.logout-btn {
+  background-color: #e53e3e;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c53030;
+}
+
+/* تنسيق عناصر التحكم */
 .navbar-controls {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 15px;
 }
 
 .toggle-group {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
 }
 
-.toggle-button {
-  padding: 5px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.toggle-group span {
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 /* زر تبديل اللغة */
-.language-toggle {
+.toggle-button.language-toggle {
   background-color: var(--button-bg);
-  color: var(--text-color);
-  width: 50px;
-  height: 30px;
+  color: var(--text-color-dark);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
 }
 
-.language-toggle:hover {
+.toggle-button.language-toggle:hover {
   background-color: var(--button-hover);
 }
 
 /* زر تبديل الوضع المظلم/الفاتح */
-.mode-toggle {
+.toggle-button.mode-toggle {
   background-color: var(--button-bg);
-  border-radius: 20px;
-  width: 60px;
-  height: 30px;
+  border-radius: 15px;
+  width: 48px;
+  height: 24px;
   position: relative;
-  overflow: hidden;
   padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease;
 }
 
 .mode-toggle.dark {
-  background-color: var(--button-hover);
+  background-color: var(--accent-color);
 }
 
 .toggle-slider {
   position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 22px;
-  height: 22px;
-  background-color: var(--text-color);
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background-color: #ffffff;
   border-radius: 50%;
-  transition: transform 0.2s ease;
-  z-index: 2;
-  box-shadow: 0 2px 5px var(--shadow-color);
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px var(--shadow-color);
 }
 
 .mode-toggle.dark .toggle-slider {
-  transform: translateX(30px);
-  background-color: var(--text-color);
+  transform: translateX(24px);
 }
 
 .toggle-icon {
   position: absolute;
   top: 50%;
-  left: 30px;
   transform: translateY(-50%);
-  font-size: 14px;
-  z-index: 1;
+  font-size: 0.8rem;
+  color: var(--text-color-dark);
 }
 
-.mode-toggle.dark .toggle-icon {
-  left: 10px;
+.toggle-icon.light {
+  left: 8px;
 }
 
-/* تحسين لاتجاه النص */
-.rtl {
-  direction: rtl;
+.toggle-icon.dark {
+  left: 28px;
 }
 
-.ltr {
-  direction: ltr;
+/* تنسيق متجاوب */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 15px;
+    height: 56px;
+  }
+
+  .navbar-links {
+    display: none; /* إخفاء الروابط في الشاشات الصغيرة */
+    position: absolute;
+    top: 56px;
+    left: 0;
+    right: 0;
+    background-color: var(--header-bg);
+    flex-direction: column;
+    padding: 20px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    transition: transform 0.3s ease;
+    transform: translateY(-100%);
+  }
+
+  .navbar-links.active {
+    display: flex;
+    transform: translateY(0);
+  }
+
+  .navbar-links li {
+    margin: 10px 0;
+  }
+
+  .navbar-links a {
+    font-size: 1.1rem;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  /* زر الهامبرغر */
+  .hamburger {
+    display: block;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    position: relative;
+  }
+
+  .hamburger span {
+    background-color: var(--text-color);
+    height: 3px;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    transition: all 0.3s ease;
+  }
+
+  .hamburger span:nth-child(1) {
+    top: 4px;
+  }
+
+  .hamburger span:nth-child(2) {
+    top: 10px;
+  }
+
+  .hamburger span:nth-child(3) {
+    top: 16px;
+  }
+
+  .hamburger.active span:nth-child(1) {
+    transform: rotate(45deg);
+    top: 10px;
+  }
+
+  .hamburger.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg);
+    top: 10px;
+  }
+
+  .navbar-controls {
+    gap: 10px;
+  }
+
+  .toggle-button.language-toggle {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+
+  .toggle-button.mode-toggle {
+    width: 40px;
+    height: 20px;
+  }
+
+  .toggle-slider {
+    width: 14px;
+    height: 14px;
+    top: 3px;
+  }
+
+  .mode-toggle.dark .toggle-slider {
+    transform: translateX(20px);
+  }
 }
 
 /* الرسوم المتحركة */
-@keyframes fadeIn {
+@keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;

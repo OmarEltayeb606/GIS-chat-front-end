@@ -6,9 +6,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #1E3A8A, #60A5FA);
   font-family: 'Roboto', sans-serif;
-  direction: rtl;
   overflow: hidden;
   animation: fadeIn 1s ease forwards;
 }
@@ -18,83 +16,141 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(0, 123, 255, 0.2) 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  width: 100%;
   position: relative;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
 }
 
-/* GIS-themed background elements */
-.gis-background {
+.login-container.rtl {
+  direction: rtl;
+}
+
+.login-container.ltr {
+  direction: ltr;
+}
+
+/* الوضع الداكن */
+.login-container.dark-mode {
+  background: linear-gradient(135deg, #1a202c, #2d3748);
+}
+
+.login-container.dark-mode .login-box {
+  background: rgba(45, 55, 72, 0.95);
+  color: #e2e8f0;
+  border: 1px solid rgba(66, 153, 225, 0.3);
+}
+
+.login-container.dark-mode .login-box h2 {
+  color: #4299e1;
+}
+
+.login-container.dark-mode .login-box h2::after {
+  background: #4299e1;
+}
+
+.login-container.dark-mode .input-group input {
+  background: rgba(45, 55, 72, 0.9);
+  border-color: #4a5568;
+  color: #e2e8f0;
+}
+
+.login-container.dark-mode .input-group input:focus {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.login-container.dark-mode .input-group .icon {
+  color: #4299e1;
+}
+
+.login-container.dark-mode .login-btn {
+  background: #4299e1;
+}
+
+.login-container.dark-mode .login-btn:hover {
+  background: #3182ce;
+  box-shadow: 0 5px 15px rgba(66, 153, 225, 0.3);
+}
+
+.login-container.dark-mode .create-account-btn {
+  background: #38a169;
+}
+
+.login-container.dark-mode .create-account-btn:hover {
+  background: #2f855a;
+  box-shadow: 0 5px 15px rgba(56, 161, 105, 0.3);
+}
+
+.login-container.dark-mode .forgot-password {
+  color: #4299e1;
+}
+
+.login-container.dark-mode .forgot-password::after {
+  background: #4299e1;
+}
+
+.login-container.dark-mode .error-message {
+  color: #f56565;
+}
+
+.login-container.dark-mode .success-message {
+  color: #68d391;
+}
+
+/* تنسيق الفيديو الخلفي */
+.background-video {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 0;
-  opacity: 0.1;
-  background: 
-    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v100H0z' fill='none'/%3E%3Cpath d='M0 0h1v1H0z' fill='%23007bff'/%3E%3C/svg%3E") 0 0/50px 50px,
-    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v100H0z' fill='none'/%3E%3Cpath d='M0 0h2v2H0z' fill='%23007bff'/%3E%3C/svg%3E") 0 0/100px 100px;
-  animation: gridMove 20s linear infinite;
+  object-fit: cover;
+  z-index: -1;
+  filter: brightness(0.8);
+  animation: videoFadeIn 2s ease forwards;
 }
 
-.gis-background::before {
+/* طبقة تدرج لوني فوق الفيديو */
+.login-container::before {
   content: '';
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(circle at 20% 20%, rgba(0, 123, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(0, 123, 255, 0.1) 0%, transparent 50%);
-  animation: pulse 4s ease-in-out infinite;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 123, 255, 0.3) 0%,
+    rgba(0, 123, 255, 0.1) 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  z-index: -1;
+  animation: gradientPulse 8s ease-in-out infinite;
 }
 
-.gis-background::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: 
-    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l30 30-30 30L0 30z' fill='%23007bff' fill-opacity='0.1'/%3E%3C/svg%3E") 0 0/60px 60px;
-  animation: rotate 30s linear infinite;
+.login-container.dark-mode::before {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 32, 44, 0.5) 0%,
+    rgba(66, 153, 225, 0.2) 50%,
+    rgba(0, 0, 0, 0.3) 100%
+  );
 }
 
+/* تنسيق صندوق تسجيل الدخول */
 .login-box {
   background: rgba(255, 255, 255, 0.95);
   padding: 2.5rem;
   border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 400px;
-  transform: translateY(0);
-  animation: mapZoom 0.8s ease-out;
   position: relative;
   z-index: 1;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 123, 255, 0.2);
-}
-
-.login-box::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, rgb(0, 123, 255), transparent, rgb(0, 123, 255));
-  border-radius: 16px;
-  z-index: -1;
-  animation: borderRotate 4s linear infinite;
-}
-
-.logo {
-  width: 50px;
-  height: 50px;
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  animation: compassSpin 10s linear infinite;
+  animation: mapZoom 0.8s ease-out;
 }
 
 .login-box h2 {
@@ -102,7 +158,6 @@ body {
   text-align: center;
   margin-bottom: 1.5rem;
   font-size: 1.8rem;
-  animation: textGlow 2s ease-in-out infinite;
   position: relative;
 }
 
@@ -274,15 +329,15 @@ button:active {
   width: 100%;
 }
 
-/* GIS-themed Animations */
-@keyframes gridMove {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-50px, -50px); }
+/* الرسوم المتحركة */
+@keyframes videoFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 0.8; }
+@keyframes gradientPulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.5; }
 }
 
 @keyframes mapZoom {
@@ -296,21 +351,6 @@ button:active {
   }
 }
 
-@keyframes borderRotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes compassSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes textGlow {
-  0%, 100% { text-shadow: 0 0 5px rgba(0, 123, 255, 0.5); }
-  50% { text-shadow: 0 0 20px rgba(0, 123, 255, 0.8); }
-}
-
 @keyframes lineExpand {
   0% { width: 0; }
   100% { width: 50px; }
@@ -322,7 +362,6 @@ button:active {
   100% { left: 100%; }
 }
 
-/* Existing animations */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -345,7 +384,7 @@ button:active {
   75% { transform: translateX(5px); }
 }
 
-/* Loading animation */
+/* تنسيق التحميل */
 button.loading {
   position: relative;
   pointer-events: none;
@@ -369,13 +408,7 @@ button.loading::after {
   to { transform: rotate(360deg); }
 }
 
-/* New animations */
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Responsive design */
+/* تصميم متجاوب */
 @media (max-width: 480px) {
   .name-group {
     grid-template-columns: 1fr;
@@ -388,6 +421,8 @@ button.loading::after {
   }
 
   h2 {
+   
+
     font-size: 20px;
   }
 
