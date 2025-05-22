@@ -1,75 +1,64 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './navbar.css';
-import { useLanguage } from '../../context/LanguageContext';
-import { useTheme } from '../../context/ThemeContext';
 
 const Navbar = () => {
-  const { lang, toggleLanguage } = useLanguage();
-  const { isDark, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
 
-  // نصوص الـ Navbar بناءً على اللغة
-  const navText = {
-    ar: {
-      home: 'الرئيسية',
-      mapView: 'عرض الخريطة',
-      imgView: 'عرض الصور',
-      ai: 'الذكاء الاصطناعي',
-      about: 'حول',
-      language: 'اللغة:',
-      theme: 'السمة:',
-      switchToEnglish: 'Switch to English',
-      switchToArabic: 'التبديل إلى العربية',
-      light: 'فاتح',
-      dark: 'داكن'
-    },
-    en: {
-      home: 'Home',
-      mapView: 'Map View',
-      imgView: 'Image View',
-      ai: 'AI',
-      about: 'About',
-      language: 'Language:',
-      theme: 'Theme:',
-      switchToEnglish: 'Switch to English',
-      switchToArabic: 'Switch to Arabic',
-      light: 'Light',
-      dark: 'Dark'
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
+  const handleNavigation = (path) => (e) => {
+    if (!token) {
+      e.preventDefault();
+      navigate('/');
     }
   };
 
   return (
-    <nav className={`navbar ${lang === 'ar' ? 'rtl' : 'ltr'} ${isDark ? 'dark-mode' : 'light-mode'}`}>
-      <ul>
-        <li><Link to="/">{navText[lang].home}</Link></li>
-        <li><Link to="/mapView">{navText[lang].mapView}</Link></li>
-        <li><Link to="/imgView">{navText[lang].imgView}</Link></li>
-        <li><Link to="/ai">{navText[lang].ai}</Link></li>
-        <li><Link to="/about">{navText[lang].about}</Link></li>
-      </ul>
-      <div className="navbar-controls">
-        <div className="toggle-group">
-          <span>{navText[lang].language}</span>
-          <button
-            className="toggle-button language-toggle"
-            onClick={toggleLanguage}
-            aria-label={lang === 'ar' ? navText[lang].switchToEnglish : navText[lang].switchToArabic}
-          >
-            {lang === 'ar' ? 'EN' : 'عربي'}
-          </button>
-        </div>
-        <div className="toggle-group">
-          <span>{navText[lang].theme}</span>
-          <button
-            className={`toggle-button mode-toggle ${isDark ? 'dark' : 'light'}`}
-            onClick={toggleTheme}
-            aria-label={isDark ? navText[lang].light : navText[lang].dark}
-          >
-            <span className="toggle-slider"></span>
-            <span className="toggle-icon">{isDark ? '🌙' : '☀️'}</span>
-          </button>
-        </div>
+    <nav className="navbar">
+      <div className="navbar-brand">
+        <Link to={token ? "/home" : "/"} onClick={handleNavigation('/home')}>
+          GIS Chat
+        </Link>
       </div>
+      <ul className="navbar-links">
+        <li>
+          <Link to="/home" onClick={handleNavigation('/home')}>
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link to="/mapView" onClick={handleNavigation('/mapView')}>
+            Map View
+          </Link>
+        </li>
+        <li>
+          <Link to="/imgView" onClick={handleNavigation('/imgView')}>
+            Image View
+          </Link>
+        </li>
+        <li>
+          <Link to="/ai" onClick={handleNavigation('/ai')}>
+            AI
+          </Link>
+        </li>
+        <li>
+          <Link to="/about" onClick={handleNavigation('/about')}>
+            About
+          </Link>
+        </li>
+        {token && (
+          <li>
+            <button onClick={handleLogout} className="logout-btn">
+              تسجيل الخروج
+            </button>
+          </li>
+        )}
+      </ul>
     </nav>
   );
 };
