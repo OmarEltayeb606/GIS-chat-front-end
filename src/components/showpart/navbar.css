@@ -3,7 +3,7 @@
   --header-bg: #ffffff; /* خلفية الـ Navbar في الوضع الفاتح */
   --header-bg-dark: #1a202c; /* خلفية الـ Navbar في الوضع الداكن */
   --text-color: #2d3748; /* لون النص في الوضع الفاتح */
-  --text-color-dark: #e2e8f0; /* لون النص في الوضع الداكن */
+  --text-color-dark: #f0eae2; /* لون النص في الوضع الداكن */
   --hover-bg: #3182ce; /* لون التحويم */
   --button-bg: #4a5568; /* خلفية الأزرار */
   --button-hover: #2b6cb0; /* خلفية الأزرار عند التحويم */
@@ -94,7 +94,7 @@
 
 .navbar-links a:hover {
   background-color: var(--hover-bg);
-  color: #ffffff;
+  color: #0088ff;
 }
 
 /* زر تسجيل الخروج */
@@ -153,8 +153,8 @@
 .toggle-button.mode-toggle {
   background-color: var(--button-bg);
   border-radius: 15px;
-  width: 48px;
-  height: 24px;
+  width: 57px;
+  height: 32px;
   position: relative;
   padding: 0;
   cursor: pointer;

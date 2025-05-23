@@ -189,6 +189,7 @@ body::-webkit-scrollbar {
   font-weight: 700;
   margin-bottom: var(--spacing-xl);
   color: var(--primary-color);
+  width: 100%;
 }
 
 .features-section .features-grid {
