@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useLanguage } from '../../context/LanguageContext';
+import { useTheme } from '../../context/ThemeContext';
 import './about.css';
-import logo from './../../imgs/Create_a_professional_logo_for_a_GIS_Chat_applicat-1747661200450.png'
+import logo from './../../imgs/Create_a_professional_logo_for_a_GIS_Chat_applicat-1747661200450.png';
+// استيراد الصور الخاصة بالفريق
+import omarAbdullahImg from './../../imgs/me.png';
+import badriImg from './../../imgs/me.png';
+import abdelrahmanImg from './../../imgs/me.png';
+import omarKhaledImg from './../../imgs/me.png';
+import bolaImg from './../../imgs/me.png';
+import omarMohammedImg from './../../imgs/me.png';
 
-// استيراد الصور (الصور الأصلية كما في الملف المرفوع)
+// استيراد الصور الأخرى
 const images = {
-  team1: "https://www.xyht.com/wp-content/uploads/2023/10/34-AI-Diagram.jpg",
-  team2: "https://www.esri.com/content/dam/esrisites/en-us/arcgis/capabilities/capabilities-redesign-2022/imagery-remote-sensing/imagery-update-09-22/assets/imagery-sensing-content-switcher-geoai.jpg",
   company: logo,
   technology: "https://storage.googleapis.com/gweb-research2023-media/original_images/GeospatialReasoning1_OverviewHERO.png",
   satellite: "https://s3.amazonaws.com/content.satimagingcorp.com/static/galleryimages/pleiades-neo-3-satellite-image.jpg",
@@ -13,51 +20,9 @@ const images = {
 };
 
 const AboutPage = () => {
-  const [darkMode, setDarkMode] = useState(false);
-  const [lang, setLang] = useState('ar'); // افتراضي باللغة العربية
-  const [animated, setAnimated] = useState(false);
-
-  useEffect(() => {
-    // تحقق من التفضيلات المحفوظة
-    const savedMode = localStorage.getItem('darkMode');
-    const savedLang = localStorage.getItem('language');
-    
-    if (savedMode) {
-      setDarkMode(savedMode === 'true');
-    } else {
-      // التحقق من تفضيل النظام
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setDarkMode(prefersDark);
-    }
-    
-    if (savedLang) {
-      setLang(savedLang);
-    }
-    
-    // تفعيل الحركات بعد تحميل الصفحة
-    setTimeout(() => {
-      setAnimated(true);
-    }, 100);
-  }, []);
-
-  useEffect(() => {
-    // حفظ التفضيلات في التخزين المحلي
-    localStorage.setItem('darkMode', darkMode);
-    localStorage.setItem('language', lang);
-    
-    // تطبيق الوضع على العنصر الأساسي (html)
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-  }, [darkMode, lang]);
-
-  // تبديل الوضع المظلم/الفاتح
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
-
-  // تبديل اللغة
-  const toggleLanguage = () => {
-    setLang(lang === 'ar' ? 'en' : 'ar');
-  };
+  // استخدام Context للغة والمود
+  const { lang } = useLanguage();
+  const { isDark } = useTheme();
 
   // نصوص الصفحة بناءً على اللغة المختارة
   const text = {
@@ -94,33 +59,33 @@ const AboutPage = () => {
       teamIntro: 'نحن مجموعة من ستة طلاب في السنة الرابعة من كلية الآداب، قسم الجيوماتكس، متحمسون لتطبيق ما تعلمناه خلال دراستنا الجامعية في مشروع عملي يحل مشكلة حقيقية.',
       teamMembers: [
         {
-          name: 'أحمد العتيبي',
-          position: 'قائد الفريق',
+          name: 'عمر عبدالله',
+          position: 'قائد الفريق و مطور واجهات أمامية و خلفية',
           bio: 'متخصص في تطوير واجهات المستخدم وتصميم تجربة المستخدم، مهتم بتطبيقات الجيوماتكس في التخطيط الحضري.'
         },
         {
-          name: 'سارة الغامدي',
-          position: 'مطورة قواعد البيانات المكانية',
-          bio: 'مهتمة بتصميم وإدارة قواعد البيانات المكانية، ولديها خبرة في تحليل البيانات الجغرافية.'
+          name: 'بدري علي',
+          position: 'مطور قواعد البيانات',
+          bio: 'مهتم بتصميم وإدارة قواعد البيانات، ولديها خبرة في تحليل البيانات الجغرافية.'
         },
         {
-          name: 'محمد القحطاني',
+          name: 'عبدالرحمن إمبابي',
           position: 'مطور خوارزميات تحليل الصور',
           bio: 'متخصص في تطبيق تقنيات الذكاء الاصطناعي والرؤية الحاسوبية على الصور الفضائية.'
         },
         {
-          name: 'نورة السلمي',
-          position: 'مصممة واجهات المستخدم',
-          bio: 'موهوبة في تصميم واجهات المستخدم وجعل التطبيقات المعقدة سهلة الاستخدام وجذابة بصريًا.'
+          name: 'عمر خالد',
+          position: 'مصمم واجهات خلفية',
+          bio: 'مصمم واجهة خلفية و مهتم بمجال نظم المعلومات الجغرافية'
         },
         {
-          name: 'فهد الدوسري',
+          name: 'بولا حربي',
           position: 'مطور نظم المعلومات الجغرافية',
           bio: 'متخصص في تطوير تطبيقات نظم المعلومات الجغرافية، ولديه خبرة في التحليل المكاني.'
         },
         {
-          name: 'عبير الشهري',
-          position: 'باحثة ومحللة بيانات',
+          name: 'عمر محمد',
+          position: 'باحث ومحلل بيانات جغرافية',
           bio: 'متخصصة في تحليل البيانات وإعداد التقارير، ولديها اهتمام بالتطبيقات البيئية للجيوماتكس.'
         }
       ],
@@ -130,16 +95,13 @@ const AboutPage = () => {
         'React.js لتطوير واجهة المستخدم التفاعلية',
         'ArcGIS API for JavaScript لعرض وتحليل البيانات المكانية',
         'Python مع مكتبات GeoPandas وRasterIO لمعالجة البيانات الجغرافية',
+        'TensorFlow وPyTorch لتطوير نماذج الذكاء الاصطناعي',
         'PostgreSQL مع امتداد PostGIS لتخزين وإدارة البيانات المكانية'
       ],
       contactUs: 'تواصل معنا',
       contactText: 'إذا كان لديك أي استفسارات أو اقتراحات حول مشروعنا، يرجى التواصل معنا عبر البريد الإلكتروني omar.eltayeb.w@gmail.com',
       joinUs: 'المشرف الأكاديمي',
       joinUsText: 'نتقدم بالشكر للدكتور محمود خضر من قسم الجيوماتكس على إرشاده ودعمه المستمر خلال مراحل تطوير المشروع.',
-      theme: 'السمة:',
-      light: 'فاتح',
-      dark: 'داكن',
-      language: 'اللغة:',
       startExploring: 'استكشف المشروع',
     },
     en: {
@@ -175,34 +137,34 @@ const AboutPage = () => {
       teamIntro: 'We are a group of six fourth-year students from the Faculty of Arts, Geomatics Department, excited to apply what we have learned during our university studies in a practical project that solves a real problem.',
       teamMembers: [
         {
-          name: 'Ahmed Al-Otaibi',
-          position: 'Team Leader',
-          bio: 'Specialized in UI development and user experience design, interested in Geomatics applications in urban planning.'
+          name: 'Omar Abdullah',
+          position: 'Team Leader and Front-End/Back-End Developer',
+          bio: 'Specialized in user interface development and user experience design, interested in Geomatics applications in urban planning.'
         },
         {
-          name: 'Sarah Al-Ghamdi',
-          position: 'Spatial Database Developer',
-          bio: 'Interested in designing and managing spatial databases, with experience in geographical data analysis.'
+          name: 'Badri Ali',
+          position: 'Database Developer',
+          bio: 'Interested in designing and managing databases, with experience in geographic data analysis.'
         },
         {
-          name: 'Mohammed Al-Qahtani',
+          name: 'Abdelrahman Imbaby',
           position: 'Image Analysis Algorithm Developer',
           bio: 'Specialized in applying AI and computer vision techniques to satellite imagery.'
         },
         {
-          name: 'Noura Al-Salmi',
-          position: 'UI Designer',
-          bio: 'Talented in designing user interfaces and making complex applications easy to use and visually appealing.'
+          name: 'Omar Khaled',
+          position: 'Back-End Interface Designer',
+          bio: 'Back-end interface designer, interested in the field of Geographic Information Systems.'
         },
         {
-          name: 'Fahad Al-Dosari',
+          name: 'Bola Harbi',
           position: 'GIS Developer',
-          bio: 'Specialized in developing GIS applications, with experience in spatial analysis.'
+          bio: 'Specialized in developing Geographic Information Systems applications, with experience in spatial analysis.'
         },
         {
-          name: 'Abeer Al-Shehri',
-          position: 'Researcher and Data Analyst',
-          bio: 'Specialized in data analysis and reporting, with interest in environmental applications of Geomatics.'
+          name: 'Omar Mohammed',
+          position: 'Researcher and Geographic Data Analyst',
+          bio: 'Specialized in data analysis and report preparation, with an interest in environmental applications of Geomatics.'
         }
       ],
       technology: 'Technologies Used',
@@ -218,46 +180,15 @@ const AboutPage = () => {
       contactText: 'If you have any questions or suggestions about our project, please contact us via email at omar.eltayeb.w@gmail.com',
       joinUs: 'Academic Supervisor',
       joinUsText: 'We would like to thank Dr. Mahmoud Khader from the Geomatics Department for his guidance and continuous support during the project development stages.',
-      theme: 'Theme:',
-      light: 'Light',
-      dark: 'Dark',
-      language: 'Language:',
       startExploring: 'Explore Project',
     }
   };
 
   return (
-    <div className={`about-container ${darkMode ? 'dark-mode' : 'light-mode'} ${lang === 'ar' ? 'rtl' : 'ltr'} ${animated ? 'animated' : ''}`}>
-      <div className="settings-bar">
-        {/* زر تغيير اللغة */}
-        <div className="toggle-group">
-          <span>{text[lang].language}</span>
-          <button 
-            className="toggle-button language-toggle" 
-            onClick={toggleLanguage}
-            aria-label={lang === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
-          >
-            {lang === 'ar' ? 'EN' : 'عربي'}
-          </button>
-        </div>
-        
-        {/* زر تغيير المظهر */}
-        <div className="toggle-group">
-          <span>{text[lang].theme}</span>
-          <button 
-            className={`toggle-button mode-toggle ${darkMode ? 'dark' : 'light'}`} 
-            onClick={toggleDarkMode}
-            aria-label={darkMode ? text[lang].light : text[lang].dark}
-          >
-            <span className="toggle-slider"></span>
-            <span className="toggle-icon">{darkMode ? '🌙' : '☀️'}</span>
-          </button>
-        </div>
-      </div>
-
+    <div className={`about-container ${lang}`} data-theme={isDark ? 'dark' : 'light'}>
       <header className="about-header">
         <div className="logo-container">
-          <div className="logo">GIS chat</div>
+          {/* <img src={logo} alt="GIS Chat Logo" className="header-logo" /> */}
         </div>
         <h1 className="main-title">{text[lang].title}</h1>
         <p className="subtitle">{text[lang].subtitle}</p>
@@ -271,7 +202,7 @@ const AboutPage = () => {
             <p>{text[lang].storyContent2}</p>
           </div>
           <div className="image-content">
-            <img src={images.company} alt="Project Story" className="about-image" />
+            <img src={images.company} alt={text[lang].ourStory} className="about-image" />
           </div>
         </div>
       </section>
@@ -285,7 +216,7 @@ const AboutPage = () => {
             <p>{text[lang].missionContent}</p>
           </div>
           <div className="image-content">
-            <img src={images.satellite} alt="Project Vision" className="about-image" />
+            <img src={images.satellite} alt={text[lang].vision} className="about-image" />
           </div>
         </div>
       </section>
@@ -311,7 +242,14 @@ const AboutPage = () => {
             <div className="team-card" key={index}>
               <div className="team-image-container">
                 <img 
-                  src={index % 2 === 0 ? images.team1 : images.team2} 
+                  src={
+                    index === 0 ? omarAbdullahImg :
+                    index === 1 ? badriImg :
+                    index === 2 ? abdelrahmanImg :
+                    index === 3 ? omarKhaledImg :
+                    index === 4 ? bolaImg :
+                    omarMohammedImg
+                  } 
                   alt={member.name} 
                   className="team-image" 
                 />
@@ -338,7 +276,7 @@ const AboutPage = () => {
             </ul>
           </div>
           <div className="image-content">
-            <img src={images.technology} alt="Project Technology" className="about-image" />
+            <img src={images.technology} alt={text[lang].technology} className="about-image" />
           </div>
         </div>
       </section>
@@ -361,7 +299,7 @@ const AboutPage = () => {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-logo">
-            <span>GIS chat</span>
+            <span>GIS Chat</span>
             <p>© 2025 Geomatics Student Project. {lang === 'ar' ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}</p>
           </div>
         </div>
