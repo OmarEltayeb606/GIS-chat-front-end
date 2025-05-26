@@ -66,43 +66,313 @@ const FitBounds = ({ layers }) => {
 };
 
 const Toolbox = ({ onToolSelect, layers, onToolComplete }) => {
+  const [selectedTool, setSelectedTool] = useState(null);
   const [selectedInputLayer, setSelectedInputLayer] = useState(null);
-  const [selectedClipLayer, setSelectedClipLayer] = useState(null);
+  const [selectedClipEraseLayer, setSelectedClipEraseLayer] = useState(null);
+  const [selectedUnionLayers, setSelectedUnionLayers] = useState([]);
+  const [bufferDistance, setBufferDistance] = useState(100);
+  const [bufferUnit, setBufferUnit] = useState('Meters');
+  const [ringDistances, setRingDistances] = useState('100,200,300');
+  const [selectedUpdateLayer, setSelectedUpdateLayer] = useState(null);
+
+  const handleToolSelect = (tool) => {
+    setSelectedTool(tool);
+    setSelectedInputLayer(null);
+    setSelectedClipEraseLayer(null);
+    setSelectedUnionLayers([]);
+    setSelectedUpdateLayer(null);
+    onToolSelect(tool);
+  };
+
+  const handleUnionLayerSelect = (e) => {
+    const layerId = e.target.value;
+    const layer = layers.find((l) => l.id === layerId);
+    if (layer && !selectedUnionLayers.includes(layer)) {
+      setSelectedUnionLayers([...selectedUnionLayers, layer]);
+    }
+  };
+
+  const removeUnionLayer = (layerId) => {
+    setSelectedUnionLayers(selectedUnionLayers.filter((layer) => layer.id !== layerId));
+  };
 
   const handleToolExecute = async () => {
-    if (!selectedInputLayer) {
+    if (!selectedInputLayer && selectedTool !== 'union' && selectedTool !== 'intersect' && selectedTool !== 'symmetric_difference' && selectedTool !== 'multi_ring_buffer' && selectedTool !== 'update') {
       alert('يرجى اختيار طبقة الإدخال.');
       return;
     }
-    if (!selectedClipLayer) {
-      alert('يرجى اختيار طبقة التقطيع.');
-      return;
-    }
 
-    const formData = new FormData();
-    try {
-      formData.append('input_file', new Blob([selectedInputLayer.data], { type: 'application/json' }), 'input.geojson');
-      formData.append('clip_file', new Blob([selectedClipLayer.data], { type: 'application/json' }), 'clip.geojson');
-      const clipResponse = await axios.post('http://localhost:8000/clip', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-      if (clipResponse.data.success) {
-        const newLayer = {
-          type: 'vector',
-          data: JSON.stringify(clipResponse.data.geojson),
-          name: `Clipped_${selectedInputLayer.name}_with_${selectedClipLayer.name}`,
-          id: `clipped-${Date.now()}`,
-          visible: true,
-          bounds: null,
-        };
-        onToolComplete([newLayer]);
-        alert('تمت عملية التقطيع بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.');
-      } else {
-        alert(`فشلت عملية التقطيع: ${clipResponse.data.error}`);
+    if (selectedTool === 'clip' || selectedTool === 'erase') {
+      if (!selectedClipEraseLayer) {
+        alert(`يرجى اختيار طبقة ${selectedTool === 'clip' ? 'التقطيع' : 'المسح'}.`);
+        return;
       }
-    } catch (error) {
-      console.error('Error in clip operation:', error);
-      alert(`خطأ أثناء تنفيذ التقطيع: ${error.response?.data?.detail || error.message}`);
+
+      if (!selectedInputLayer.data || !selectedClipEraseLayer.data) {
+        alert('بيانات الطبقة غير صالحة. يرجى التأكد من اختيار طبقات تحتوي على بيانات.');
+        return;
+      }
+
+      const formData = new FormData();
+      try {
+        formData.append('input_file', new Blob([selectedInputLayer.data], { type: 'application/json' }), 'input.geojson');
+        formData.append(
+          selectedTool === 'clip' ? 'clip_file' : 'erase_file',
+          new Blob([selectedClipEraseLayer.data], { type: 'application/json' }),
+          selectedTool === 'clip' ? 'clip.geojson' : 'erase.geojson'
+        );
+
+        const endpoint = selectedTool === 'clip' ? '/clip' : '/erase';
+        const response = await axios.post(`http://localhost:8000${endpoint}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+          const newLayer = {
+            type: 'vector',
+            data: JSON.stringify(response.data.geojson),
+            name: `${selectedTool === 'clip' ? 'Clipped' : 'Erased'}_${selectedInputLayer.name}_with_${selectedClipEraseLayer.name}`,
+            id: `${selectedTool}-${Date.now()}`,
+            visible: true,
+            bounds: null,
+          };
+          onToolComplete([newLayer]);
+          alert(`تمت عملية ${selectedTool === 'clip' ? 'التقطيع' : 'المسح'} بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.`);
+        } else {
+          alert(`فشلت عملية ${selectedTool === 'clip' ? 'التقطيع' : 'المسح'}: ${response.data.error}`);
+        }
+      } catch (error) {
+        console.error(`Error in ${selectedTool} operation:`, error);
+        alert(`خطأ أثناء تنفيذ ${selectedTool === 'clip' ? 'التقطيع' : 'المسح'}: ${error.response?.data?.detail || error.message}`);
+      }
+    } else if (selectedTool === 'buffer_pro') {
+      if (!selectedInputLayer.data) {
+        alert('بيانات الطبقة غير صالحة. يرجى التأكد من اختيار طبقة تحتوي على بيانات.');
+        return;
+      }
+
+      if (isNaN(bufferDistance) || bufferDistance <= 0) {
+        alert('يرجى إدخال مسافة تأثير صالحة (رقم موجب).');
+        return;
+      }
+
+      const formData = new FormData();
+      try {
+        formData.append('input_file', new Blob([selectedInputLayer.data], { type: 'application/json' }), 'input.geojson');
+        formData.append('buffer_distance', bufferDistance);
+        formData.append('unit', bufferUnit);
+
+        const response = await axios.post(`http://localhost:8000/buffer_pro`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+          const newLayer = {
+            type: 'vector',
+            data: JSON.stringify(response.data.geojson),
+            name: `Buffered_${selectedInputLayer.name}_${bufferDistance}${bufferUnit}`,
+            id: `buffer_pro-${Date.now()}`,
+            visible: true,
+            bounds: null,
+          };
+          onToolComplete([newLayer]);
+          alert('تمت عملية التأثير بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.');
+        } else {
+          alert(`فشلت عملية التأثير: ${response.data.error}`);
+        }
+      } catch (error) {
+        console.error('Error in buffer_pro operation:', error);
+        alert(`خطأ أثناء تنفيذ التأثير: ${error.response?.data?.detail || error.message}`);
+      }
+    } else if (selectedTool === 'intersect') {
+      if (selectedUnionLayers.length < 2) {
+        alert('يرجى اختيار طبقتين على الأقل للتقاطع.');
+        return;
+      }
+
+      const formData = new FormData();
+      try {
+        selectedUnionLayers.forEach((layer, index) => {
+          if (!layer.data) {
+            throw new Error(`بيانات الطبقة ${layer.name} غير صالحة.`);
+          }
+          formData.append('files', new Blob([layer.data], { type: 'application/json' }), `layer_${index}.geojson`);
+        });
+
+        const response = await axios.post(`http://localhost:8000/intersect`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+          const newLayer = {
+            type: 'vector',
+            data: JSON.stringify(response.data.geojson),
+            name: `Intersected_${selectedUnionLayers.map(l => l.name).join('_')}`,
+            id: `intersect-${Date.now()}`,
+            visible: true,
+            bounds: null,
+          };
+          onToolComplete([newLayer]);
+          alert('تمت عملية التقاطع بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.');
+        } else {
+          alert(`فشلت عملية التقاطع: ${response.data.error}`);
+        }
+      } catch (error) {
+        console.error('Error in intersect operation:', error);
+        alert(`خطأ أثناء تنفيذ التقاطع: ${error.response?.data?.detail || error.message}`);
+      }
+    } else if (selectedTool === 'union') {
+      if (selectedUnionLayers.length !== 2) {
+        alert('يرجى اختيار طبقةين للاتحاد.');
+        return;
+      }
+
+      const formData = new FormData();
+      try {
+        [selectedUnionLayers[0], selectedUnionLayers[1]].forEach((layer, index) => {
+          if (!layer.data) {
+            throw new Error(`بيانات الطبقة ${layer.name} غير صالحة.`);
+          }
+          formData.append(`input_file_${index + 1}`, new Blob([layer.data], { type: 'application/json' }), `input_${index + 1}.geojson`);
+        });
+
+        const response = await axios.post(`http://localhost:8000/union`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+          const newLayer = {
+            type: 'vector',
+            data: JSON.stringify(response.data.geojson),
+            name: `Union_${selectedUnionLayers.map(l => l.name).join('_')}`,
+            id: `union-${Date.now()}`,
+            visible: true,
+            bounds: null,
+          };
+          onToolComplete([newLayer]);
+          alert('تمت عملية الاتحاد بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.');
+        } else {
+          alert(`فشلت عملية الاتحاد: ${response.data.error}`);
+        }
+      } catch (error) {
+        console.error('Error in union operation:', error);
+        alert(`خطأ أثناء تنفيذ الاتحاد: ${error.response?.data?.detail || error.message}`);
+      }
+    } else if (selectedTool === 'symmetric_difference') {
+      if (selectedUnionLayers.length !== 2) {
+        alert('يرجى اختيار طبقتين للفرق التماثلي.');
+        return;
+      }
+
+      const formData = new FormData();
+      try {
+        [selectedUnionLayers[0], selectedUnionLayers[1]].forEach((layer, index) => {
+          if (!layer.data) {
+            throw new Error(`بيانات الطبقة ${layer.name} غير صالحة.`);
+          }
+          formData.append(`input_file_${index + 1}`, new Blob([layer.data], { type: 'application/json' }), `input_${index + 1}.geojson`);
+        });
+
+        const response = await axios.post(`http://localhost:8000/symmetric_difference`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+          const newLayer = {
+            type: 'vector',
+            data: JSON.stringify(response.data.geojson),
+            name: `SymmetricDiff_${selectedUnionLayers.map(l => l.name).join('_')}`,
+            id: `symmetric_difference-${Date.now()}`,
+            visible: true,
+            bounds: null,
+          };
+          onToolComplete([newLayer]);
+          alert('تمت عملية الفرق التماثلي بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.');
+        } else {
+          alert(`فشلت عملية الفرق التماثلي: ${response.data.error}`);
+        }
+      } catch (error) {
+        console.error('Error in symmetric difference operation:', error);
+        alert(`خطأ أثناء تنفيذ الفرق التماثلي: ${error.response?.data?.detail || error.message}`);
+      }
+    } else if (selectedTool === 'multi_ring_buffer') {
+      if (!selectedInputLayer.data) {
+        alert('بيانات الطبقة غير صالحة. يرجى التأكد من اختيار طبقة تحتوي على بيانات.');
+        return;
+      }
+
+      const distanceArray = ringDistances.split(',').map(d => parseFloat(d.trim()));
+      if (distanceArray.some(isNaN) || distanceArray.length === 0) {
+        alert('يرجى إدخال مسافات صالحة (أرقام مفصولة بفواصل).');
+        return;
+      }
+
+      const formData = new FormData();
+      try {
+        formData.append('input_file', new Blob([selectedInputLayer.data], { type: 'application/json' }), 'input.geojson');
+        formData.append('distances', ringDistances);
+        formData.append('unit', bufferUnit);
+
+        const response = await axios.post(`http://localhost:8000/multi_ring_buffer`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+          const newLayer = {
+            type: 'vector',
+            data: JSON.stringify(response.data.geojson),
+            name: `MultiRing_${selectedInputLayer.name}_${ringDistances.replace(',', '_')}${bufferUnit}`,
+            id: `multi_ring_buffer-${Date.now()}`,
+            visible: true,
+            bounds: null,
+          };
+          onToolComplete([newLayer]);
+          alert('تمت عملية الحلقات العازلة المتعددة بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.');
+        } else {
+          alert(`فشلت عملية الحلقات العازلة المتعددة: ${response.data.error}`);
+        }
+      } catch (error) {
+        console.error('Error in multi_ring_buffer operation:', error);
+        alert(`خطأ أثناء تنفيذ الحلقات العازلة المتعددة: ${error.response?.data?.detail || error.message}`);
+      }
+    } else if (selectedTool === 'update') {
+      if (!selectedUpdateLayer) {
+        alert('يرجى اختيار طبقة التحديث.');
+        return;
+      }
+
+      if (!selectedInputLayer.data || !selectedUpdateLayer.data) {
+        alert('بيانات الطبقة غير صالحة. يرجى التأكد من اختيار طبقتين تحتويان على بيانات.');
+        return;
+      }
+
+      const formData = new FormData();
+      try {
+        formData.append('input_file', new Blob([selectedInputLayer.data], { type: 'application/json' }), 'input.geojson');
+        formData.append('update_file', new Blob([selectedUpdateLayer.data], { type: 'application/json' }), 'update.geojson');
+
+        const response = await axios.post(`http://localhost:8000/update`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (response.data.success) {
+          const newLayer = {
+            type: 'vector',
+            data: JSON.stringify(response.data.geojson),
+            name: `Updated_${selectedInputLayer.name}_with_${selectedUpdateLayer.name}`,
+            id: `update-${Date.now()}`,
+            visible: true,
+            bounds: null,
+          };
+          onToolComplete([newLayer]);
+          alert('تمت عملية التحديث بنجاح! يمكنك استخدام الطبقة الناتجة في عمليات أخرى.');
+        } else {
+          alert(`فشلت عملية التحديث: ${response.data.error || 'خطأ غير معروف'}`);
+        }
+      } catch (error) {
+        console.error('Error in update operation:', error);
+        alert(`خطأ أثناء تنفيذ التحديث: ${error.response?.data?.detail || error.message}`);
+      }
     }
   };
 
@@ -111,28 +381,220 @@ const Toolbox = ({ onToolSelect, layers, onToolComplete }) => {
       <h4>صندوق الأدوات</h4>
       <div>
         <label>
-          طبقة الإدخال:
-          <select onChange={(e) => setSelectedInputLayer(layers.find((l) => l.id === e.target.value))} value={selectedInputLayer?.id || ''}>
-            <option value="">اختر طبقة</option>
-            {layers.filter((l) => l.type === 'vector').map((layer) => (
-              <option key={layer.id} value={layer.id}>
-                {layer.name}
-              </option>
-            ))}
+          اختر الأداة:
+          <select onChange={(e) => handleToolSelect(e.target.value)} value={selectedTool || ''}>
+            <option value="">اختر أداة</option>
+            <option value="clip">تقطيع</option>
+            <option value="erase">مسح</option>
+            <option value="buffer_pro">تأثير (محسن)</option>
+            <option value="intersect">تقاطع</option>
+            <option value="union">اتحاد</option>
+            <option value="symmetric_difference">فرق تماثلي</option>
+            <option value="multi_ring_buffer">حلقات عازلة متعددة</option>
+            <option value="update">تحديث</option>
           </select>
         </label>
-        <label>
-          طبقة التقطيع:
-          <select onChange={(e) => setSelectedClipLayer(layers.find((l) => l.id === e.target.value))} value={selectedClipLayer?.id || ''}>
-            <option value="">اختر طبقة</option>
-            {layers.filter((l) => l.type === 'vector').map((layer) => (
-              <option key={layer.id} value={layer.id}>
-                {layer.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button onClick={handleToolExecute}>تنفيذ</button>
+        {selectedTool && (
+          <>
+            {selectedTool !== 'union' && selectedTool !== 'intersect' && selectedTool !== 'symmetric_difference' && selectedTool !== 'multi_ring_buffer' && selectedTool !== 'update' && (
+              <label>
+                طبقة الإدخال:
+                <select onChange={(e) => setSelectedInputLayer(layers.find((l) => l.id === e.target.value))} value={selectedInputLayer?.id || ''}>
+                  <option value="">اختر طبقة</option>
+                  {layers.filter((l) => l.type === 'vector').map((layer) => (
+                    <option key={layer.id} value={layer.id}>
+                      {layer.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {(selectedTool === 'clip' || selectedTool === 'erase') && (
+              <label>
+                طبقة {selectedTool === 'clip' ? 'التقطيع' : 'المسح'}:
+                <select onChange={(e) => setSelectedClipEraseLayer(layers.find((l) => l.id === e.target.value))} value={selectedClipEraseLayer?.id || ''}>
+                  <option value="">اختر طبقة</option>
+                  {layers.filter((l) => l.type === 'vector').map((layer) => (
+                    <option key={layer.id} value={layer.id}>
+                      {layer.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
+            {selectedTool === 'intersect' && (
+              <>
+                <label>
+                  اختر الطبقات للتقاطع:
+                  <select onChange={handleUnionLayerSelect} value="">
+                    <option value="">اختر طبقة</option>
+                    {layers.filter((l) => l.type === 'vector').map((layer) => (
+                      <option key={layer.id} value={layer.id}>
+                        {layer.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div>
+                  <h5>الطبقات المختارة:</h5>
+                  {selectedUnionLayers.length === 0 ? (
+                    <p>لم يتم اختيار أي طبقات بعد.</p>
+                  ) : (
+                    <ul>
+                      {selectedUnionLayers.map((layer) => (
+                        <li key={layer.id}>
+                          {layer.name}{' '}
+                          <button onClick={() => removeUnionLayer(layer.id)}>إزالة</button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
+            {selectedTool === 'union' && (
+              <>
+                <label>
+                  اختر الطبقات للاتحاد:
+                  <select onChange={handleUnionLayerSelect} value="">
+                    <option value="">اختر طبقة</option>
+                    {layers.filter((l) => l.type === 'vector').map((layer) => (
+                      <option key={layer.id} value={layer.id}>
+                        {layer.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div>
+                  <h5>الطبقات المختارة:</h5>
+                  {selectedUnionLayers.length === 0 ? (
+                    <p>لم يتم اختيار أي طبقات بعد.</p>
+                  ) : (
+                    <ul>
+                      {selectedUnionLayers.map((layer) => (
+                        <li key={layer.id}>
+                          {layer.name}{' '}
+                          <button onClick={() => removeUnionLayer(layer.id)}>إزالة</button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
+            {selectedTool === 'symmetric_difference' && (
+              <>
+                <label>
+                  اختر الطبقات للفرق التماثلي:
+                  <select onChange={handleUnionLayerSelect} value="">
+                    <option value="">اختر طبقة</option>
+                    {layers.filter((l) => l.type === 'vector').map((layer) => (
+                      <option key={layer.id} value={layer.id}>
+                        {layer.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <div>
+                  <h5>الطبقات المختارة:</h5>
+                  {selectedUnionLayers.length === 0 ? (
+                    <p>لم يتم اختيار أي طبقات بعد.</p>
+                  ) : (
+                    <ul>
+                      {selectedUnionLayers.map((layer) => (
+                        <li key={layer.id}>
+                          {layer.name}{' '}
+                          <button onClick={() => removeUnionLayer(layer.id)}>إزالة</button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </>
+            )}
+            {selectedTool === 'buffer_pro' && (
+              <>
+                <label>
+                  مسافة التأثير:
+                  <input
+                    type="number"
+                    value={bufferDistance}
+                    onChange={(e) => setBufferDistance(parseFloat(e.target.value))}
+                    min="0"
+                    step="1"
+                  />
+                </label>
+                <label>
+                  الوحدة:
+                  <select onChange={(e) => setBufferUnit(e.target.value)} value={bufferUnit}>
+                    <option value="Meters">أمتار</option>
+                    <option value="Kilometers">كيلومترات</option>
+                    <option value="Miles">أميال</option>
+                  </select>
+                </label>
+              </>
+            )}
+            {selectedTool === 'multi_ring_buffer' && (
+              <>
+                <label>
+                  طبقة الإدخال:
+                  <select onChange={(e) => setSelectedInputLayer(layers.find((l) => l.id === e.target.value))} value={selectedInputLayer?.id || ''}>
+                    <option value="">اختر طبقة</option>
+                    {layers.filter((l) => l.type === 'vector').map((layer) => (
+                      <option key={layer.id} value={layer.id}>
+                        {layer.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  المسافات (مفصولة بفواصل):
+                  <input
+                    type="text"
+                    value={ringDistances}
+                    onChange={(e) => setRingDistances(e.target.value)}
+                    placeholder="مثال: 100,200,300"
+                  />
+                </label>
+                <label>
+                  الوحدة:
+                  <select onChange={(e) => setBufferUnit(e.target.value)} value={bufferUnit}>
+                    <option value="Meters">أمتار</option>
+                    <option value="Kilometers">كيلومترات</option>
+                    <option value="Miles">أميال</option>
+                  </select>
+                </label>
+              </>
+            )}
+            {selectedTool === 'update' && (
+              <>
+                <label>
+                  طبقة الإدخال:
+                  <select onChange={(e) => setSelectedInputLayer(layers.find((l) => l.id === e.target.value))} value={selectedInputLayer?.id || ''}>
+                    <option value="">اختر طبقة</option>
+                    {layers.filter((l) => l.type === 'vector').map((layer) => (
+                      <option key={layer.id} value={layer.id}>
+                        {layer.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  طبقة التحديث:
+                  <select onChange={(e) => setSelectedUpdateLayer(layers.find((l) => l.id === e.target.value))} value={selectedUpdateLayer?.id || ''}>
+                    <option value="">اختر طبقة</option>
+                    {layers.filter((l) => l.type === 'vector').map((layer) => (
+                      <option key={layer.id} value={layer.id}>
+                        {layer.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </>
+            )}
+            <button onClick={handleToolExecute}>تنفيذ</button>
+          </>
+        )}
       </div>
     </div>
   );
