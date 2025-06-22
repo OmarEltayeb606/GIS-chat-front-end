@@ -57,6 +57,13 @@
   z-index: 1100;
 }
 
+.export-button-container {
+  position: absolute;
+  top: 180px;
+  right: 10px;
+  z-index: 1100;
+}
+
 .toggle-button {
   background: #3498db;
   color: #ffffff;

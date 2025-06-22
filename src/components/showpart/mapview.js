@@ -8,11 +8,15 @@ import LayerList from './LayerList';
 import DrawControl from './DrawControl';
 import FeatureListModal from './FeatureListModal';
 import './MapView.css';
-import { FaLayerGroup } from 'react-icons/fa';
-import { FaDownload } from 'react-icons/fa';
+import { FaLayerGroup, FaDownload, FaCog } from 'react-icons/fa';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import axios from 'axios';
+
+// Suppress Leaflet deprecation warnings
+if (L.LineUtil && !L.LineUtil._flat) {
+  L.LineUtil._flat = L.LineUtil.isFlat;
+}
 
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
@@ -1044,8 +1048,10 @@ const MapView = () => {
             onClick={() => setShowToolbox((prev) => !prev)}
             title={showToolbox ? 'إخفاء الأدوات' : 'إظهار الأدوات'}
           >
-            <FaLayerGroup />
+            <FaCog />
           </button>
+        </div>
+        <div className="export-button-container">
           <button
             className={`toggle-button export-button ${(!drawingLayer || !drawingLayer.features || drawingLayer.features.length === 0 || isExporting) ? 'disabled' : ''} ${isExporting ? 'loading' : ''}`}
             onClick={handleExportDrawnShapes}
@@ -1080,7 +1086,7 @@ const MapView = () => {
         </div>
         {showLayerList && (
           <LayerList
-            layers={processedLayers}
+            layers={processedLayers.filter(l => l.id !== 'default-drawing-layer')}
             onToggleVisibility={handleToggleVisibility}
             onZoomToLayer={handleZoomToLayer}
             onDeleteLayer={handleDeleteLayer}
