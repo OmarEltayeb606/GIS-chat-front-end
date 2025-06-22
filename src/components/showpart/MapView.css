@@ -39,9 +39,10 @@
 
 .toggle-buttons-left {
   position: absolute;
-  top: 80px;
-  left: 10px;
+  top: 130px;
+  right: 10px;
   display: flex;
+  flex-direction: column;
   gap: 10px;
   z-index: 1100;
 }
@@ -51,7 +52,15 @@
   top: 80px;
   right: 10px;
   display: flex;
+  flex-direction: column;
   gap: 10px;
+  z-index: 1100;
+}
+
+.export-button-container {
+  position: absolute;
+  top: 180px;
+  right: 10px;
   z-index: 1100;
 }
 
@@ -66,11 +75,69 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
+  min-width: 40px;
+  min-height: 40px;
 }
 
 .toggle-button:hover {
   background: #2980b9;
+  transform: scale(1.05);
+}
+
+.toggle-button.export-button {
+  background: #27ae60;
+  border: 2px solid #2ecc71;
+}
+
+.toggle-button.export-button:hover {
+  background: #229954;
+  border-color: #27ae60;
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+.toggle-button.export-button:disabled {
+  background: #95a5a6;
+  border-color: #7f8c8d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.toggle-button.export-button:disabled:hover {
+  background: #95a5a6;
+  border-color: #7f8c8d;
+  box-shadow: none;
+}
+
+.toggle-button.export-button.loading {
+  background: #f39c12;
+  border-color: #e67e22;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.toggle-button.disabled {
+  background: #95a5a6 !important;
+  border-color: #7f8c8d !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.toggle-button.disabled:hover {
+  background: #95a5a6 !important;
+  border-color: #7f8c8d !important;
+  box-shadow: none !important;
 }
 
 html, body, #root {
@@ -160,4 +227,23 @@ html, body, #root {
 
 .help-icon:hover {
   color: #0056b3;
+}
+
+.drawing-cursor .leaflet-container {
+  cursor: crosshair !important;
+}
+
+/* Custom leaflet-draw icons */
+.leaflet-draw-edit-edit {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>');
+    background-size: 20px 20px;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.leaflet-draw-edit-remove {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>');
+    background-size: 20px 20px;
+    background-position: center;
+    background-repeat: no-repeat;
 }

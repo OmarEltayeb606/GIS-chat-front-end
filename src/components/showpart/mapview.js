@@ -2,13 +2,21 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import { MapContainer, TileLayer, GeoJSON, ImageOverlay, useMap, FeatureGroup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 import AddLayerButton from './AddLayerButton';
 import LayerList from './LayerList';
+import DrawControl from './DrawControl';
+import FeatureListModal from './FeatureListModal';
 import './MapView.css';
-import { FaLayerGroup } from 'react-icons/fa';
+import { FaLayerGroup, FaDownload, FaCog } from 'react-icons/fa';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import axios from 'axios';
+
+// Suppress Leaflet deprecation warnings
+if (L.LineUtil && !L.LineUtil._flat) {
+  L.LineUtil._flat = L.LineUtil.isFlat;
+}
 
 class ErrorBoundary extends React.Component {
   state = { hasError: false };
@@ -602,54 +610,75 @@ const Toolbox = ({ onToolSelect, layers, onToolComplete }) => {
 
 const MapView = () => {
   const [layers, setLayers] = useState([]);
-  const [processedLayers, setProcessedLayers] = useState([]);
   const [showBaseMap, setShowBaseMap] = useState(true);
-  const [isMapReady, setIsMapReady] = useState(false);
   const [showLayerList, setShowLayerList] = useState(false);
   const [showToolbox, setShowToolbox] = useState(false);
-  const mapRef = useRef(null);
+  const [featureListModalOpen, setFeatureListModalOpen] = useState(false);
+  const [layerForModal, setLayerForModal] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const mapRef = useRef();
+
+  // Get user's export preference
+  const getExportPreference = () => {
+    try {
+      return localStorage.getItem('exportPreference') || 'ask';
+    } catch (error) {
+      return 'ask';
+    }
+  };
+
+  // Save user's export preference
+  const saveExportPreference = (preference) => {
+    try {
+      localStorage.setItem('exportPreference', preference);
+    } catch (error) {
+      console.warn('Could not save export preference:', error);
+    }
+  };
 
   useEffect(() => {
-    const transformLayers = () => {
-      const transformedLayers = layers.map((layer) => {
-        console.log(`Processing layer ${layer.name} with data:`, JSON.stringify(layer, null, 2));
-        if (layer.type === 'vector' && layer.data) {
-          try {
-            const geojson = JSON.parse(layer.data);
-            if (!geojson.type || !geojson.features) {
-              console.error(`Invalid GeoJSON structure for ${layer.name}`);
-              return { ...layer, data: null };
-            }
-            return layer;
-          } catch (e) {
-            console.error(`Error parsing GeoJSON for ${layer.name}: ${e.message}`);
+    // Initialize with a default drawing layer
+    const initialDrawingLayer = {
+      id: 'default-drawing-layer',
+      name: 'Drawing Layer',
+      type: 'vector', // This is a drawing layer, not a standard vector layer
+      features: [], // GeoJSON features will go here
+      visible: true,
+      color: '#ff0000', // Default color for drawings
+      fillColor: '#ff0000',
+      opacity: 0.8,
+      fillOpacity: 0.5,
+    };
+    setLayers([initialDrawingLayer]);
+  }, []);
+
+  const processedLayers = useMemo(() => {
+    return layers.map((layer) => {
+      if (layer.type === 'vector' && layer.data) {
+        try {
+          const geojson = JSON.parse(layer.data);
+          if (!geojson.type || !geojson.features) {
+            console.error(`Invalid GeoJSON structure for ${layer.name}`);
             return { ...layer, data: null };
           }
+          return layer;
+        } catch (e) {
+          console.error(`Error parsing GeoJSON for ${layer.name}: ${e.message}`);
+          return { ...layer, data: null };
         }
-        return layer;
-      });
-      setProcessedLayers(transformedLayers);
-    };
-    transformLayers();
+      }
+      return layer;
+    });
   }, [layers]);
 
   useEffect(() => {
     if (!mapRef.current) return;
-    console.log('Map fully initialized');
-    setIsMapReady(true);
     const map = mapRef.current;
-    const onClick = (e) => {
-      console.log('Map clicked:', e.latlng);
-      e.originalEvent.preventDefault();
-      e.originalEvent.stopPropagation();
-      window.scrollTo(0, 0);
-    };
-    map.on('click', onClick);
-    return () => map.off('click', onClick);
+    if (!map) return;
+    map.keyboard.enable();
   }, []);
 
   const handleAddLayer = useCallback((newLayers) => {
-    console.log('Adding Layers:', JSON.stringify(newLayers, null, 2));
     setLayers((prev) => {
       const layersToAdd = Array.isArray(newLayers) ? newLayers : [newLayers];
       const updatedLayers = [
@@ -662,7 +691,6 @@ const MapView = () => {
           opacity: layer.opacity || 0.65,
         })),
       ];
-      console.log('Updated Layers:', JSON.stringify(updatedLayers, null, 2));
       return updatedLayers;
     });
   }, []);
@@ -676,11 +704,11 @@ const MapView = () => {
   }, []);
 
   const handleZoomToLayer = useCallback((layerId) => {
-    if (!isMapReady || !mapRef.current) {
+    if (!mapRef.current) {
       alert('الخريطة لم تُهيأ بعد. انتظر قليلاً ثم حاول مرة أخرى.');
       return;
     }
-    const layer = processedLayers.find((l) => l.id === layerId);
+    const layer = layers.find((l) => l.id === layerId);
     if (!layer) {
       alert('الطبقة غير موجودة. تأكد من إضافة الطبقة أولاً.');
       return;
@@ -688,23 +716,12 @@ const MapView = () => {
     const map = mapRef.current;
     try {
       if (layer.type === 'raster' && layer.bounds) {
-        console.log(`Zooming to raster bounds: ${JSON.stringify(layer.bounds)}`);
         map.fitBounds(layer.bounds);
-      } else if (layer.type === 'vector' && layer.data) {
-        const geoJsonLayer = L.geoJSON(JSON.parse(layer.data), {
-          pointToLayer: (feature, latlng) =>
-            L.circleMarker(latlng, {
-              radius: 6,
-              fillColor: layer.fillColor || layer.color || '#ff0000',
-              color: layer.color || '#000',
-              weight: 1,
-              opacity: 1,
-              fillOpacity: layer.fillOpacity || 0.7,
-            }),
-        });
+      } else if (layer.type === 'vector' && (layer.data || (layer.features && layer.features.length > 0))) {
+        const geojson = layer.data ? JSON.parse(layer.data) : { type: 'FeatureCollection', features: layer.features };
+        const geoJsonLayer = L.geoJSON(geojson);
         const bounds = geoJsonLayer.getBounds();
         if (bounds.isValid()) {
-          console.log(`Zooming to vector bounds: ${JSON.stringify(bounds)}`);
           map.fitBounds(bounds);
         } else {
           alert('حدود الطبقة غير صالحة. تحقق من بيانات الطبقة.');
@@ -715,15 +732,17 @@ const MapView = () => {
     } catch (e) {
       alert(`خطأ أثناء التكبير على الطبقة: ${e.message}`);
     }
-  }, [processedLayers, isMapReady]);
+  }, [layers]);
 
   const handleDeleteLayer = useCallback((layerId) => {
-    console.log(`Deleting layer: ${layerId}`);
+    if (layerId === 'default-drawing-layer') {
+      alert("لا يمكن حذف طبقة الرسم الافتراضية.");
+      return;
+    }
     setLayers((prev) => prev.filter((layer) => layer.id !== layerId));
   }, []);
 
   const handleChangeLayerColor = useCallback((layerId, color) => {
-    console.log(`Changing color for layer ${layerId} to ${color}`);
     setLayers((prev) =>
       prev.map((layer) =>
         layer.id === layerId ? { ...layer, color, fillColor: color } : layer
@@ -733,119 +752,287 @@ const MapView = () => {
 
   const handleChangeLayerOpacity = useCallback((layerId, opacity) => {
     if (opacity < 0 || opacity > 1) return;
-    const handler = setTimeout(() => {
-      console.log(`Changing opacity for layer ${layerId} to ${opacity}`);
-      setLayers((prev) =>
-        prev.map((layer) =>
-          layer.id === layerId ? { ...layer, opacity, fillOpacity: opacity } : layer
-        )
-      );
-    }, 300);
-    return () => clearTimeout(handler);
+    setLayers((prev) =>
+      prev.map((layer) =>
+        layer.id === layerId ? { ...layer, opacity, fillOpacity: opacity } : layer
+      )
+    );
   }, []);
 
   const handleToggleBaseMap = useCallback(() => {
     setShowBaseMap((prev) => !prev);
   }, []);
 
-  const pointToLayer = useCallback(
-    (feature, latlng, layer) => {
-      return L.circleMarker(latlng, {
-        radius: 6,
-        fillColor: layer.fillColor || layer.color || '#ff0000',
-        color: layer.color || '#000',
-        weight: 1,
-        opacity: 1,
-        fillOpacity: layer.fillOpacity || 0.7,
-      });
-    },
-    []
-  );
+  const handleShapeCreated = (geojson) => {
+    const featureId = `feature-${Date.now()}-${Math.random()}`;
+    const newFeature = {
+      ...geojson,
+      id: featureId,
+      properties: {
+        ...(geojson.properties || {}),
+        id: featureId, // Store ID in properties for robustness
+      },
+    };
+    setLayers(prevLayers =>
+      prevLayers.map(layer => {
+        if (layer.id !== 'default-drawing-layer') {
+          return layer;
+        }
+        return {
+          ...layer,
+          features: [...layer.features, newFeature],
+        };
+      })
+    );
+  };
 
-  const memoizedLayers = useMemo(() => {
-    return processedLayers.map((layer) => {
-      if (!layer.visible) return null;
-      if (layer.type === 'vector') {
-        if (!layer.data) {
-          console.error(`Vector layer ${layer.name} is missing data.`);
-          return null;
+  const handleShowLayerFeatures = (layer) => {
+    setLayerForModal(layer);
+    setFeatureListModalOpen(true);
+  };
+
+  const handleFeaturesEdited = (editedFeatures) => {
+    const editedFeaturesMap = new Map(editedFeatures.map(f => [f.id, f]));
+    setLayers(prevLayers =>
+      prevLayers.map(layer => {
+        if (layer.id !== 'default-drawing-layer') {
+          return layer;
         }
-        try {
-          const geojson = JSON.parse(layer.data);
-          return (
-            <FeatureGroup key={layer.id}>
-              <GeoJSON
-                data={geojson}
-                style={{
-                  color: layer.color || generateRandomColor(),
-                  weight: 2,
-                  opacity: layer.opacity || 0.65,
-                  fillColor: layer.fillColor || layer.color || generateRandomColor(),
-                  fillOpacity: layer.fillOpacity || 0.7,
-                }}
-                pointToLayer={(feature, latlng) => pointToLayer(feature, latlng, layer)}
-              />
-            </FeatureGroup>
-          );
-        } catch (e) {
-          console.error(`Failed to render vector layer ${layer.name} due to invalid GeoJSON: ${e.message}`);
-          return null;
-        }
-      }
-      if (layer.type === 'raster') {
-        if (!layer.data || !layer.bounds) {
-          console.error(`Raster layer ${layer.name} is missing data or bounds.`, {
-            data: layer.data,
-            bounds: layer.bounds,
-          });
-          return null;
-        }
-        console.log(`Rendering raster layer: ${layer.name}`, {
-          url: `data:image/png;base64,${layer.data.substring(0, 50)}...`,
-          bounds: layer.bounds,
-        });
-        return (
-          <FeatureGroup key={layer.id}>
-            <ImageOverlay
-              url={`data:image/png;base64,${layer.data}`}
-              bounds={layer.bounds}
-              opacity={layer.opacity || 0.6}
-              eventHandlers={{
-                error: () => console.error(`Failed to load raster layer: ${layer.name}`),
-                load: () => console.log(`Successfully loaded raster layer: ${layer.name}`),
-              }}
-            />
-          </FeatureGroup>
+        const updatedFeatures = layer.features.map(
+          originalFeature => editedFeaturesMap.get(originalFeature.id) || originalFeature
         );
+        return { ...layer, features: updatedFeatures };
+      })
+    );
+  };
+
+  const handleFeaturesDeleted = (deletedFeatures) => {
+    const deletedIds = new Set(deletedFeatures.map(f => f.id));
+    setLayers(prevLayers =>
+      prevLayers.map(layer => {
+        if (layer.id !== 'default-drawing-layer') {
+          return layer;
+        }
+        return {
+          ...layer,
+          features: layer.features.filter(f => !deletedIds.has(f.id)),
+        };
+      })
+    );
+  };
+
+  const handleDeleteFeature = (layerId, featureId) => {
+    setLayers(prevLayers =>
+      prevLayers.map(layer => {
+        if (layer.id !== layerId) {
+          return layer;
+        }
+        const updatedFeatures = layer.features.filter(feature => feature.id !== featureId);
+        // Also update modal state if it's the same layer
+        if (layerForModal && layerForModal.id === layerId) {
+          setLayerForModal(prevModalLayer => ({
+            ...prevModalLayer,
+            features: updatedFeatures
+          }));
+        }
+        return { ...layer, features: updatedFeatures };
+      })
+    );
+  };
+
+  const onEachFeature = (feature, layer) => {
+    if (feature.properties) {
+      const popupContent = Object.entries(feature.properties)
+        .map(([key, value]) => `<b>${key}:</b> ${value}`)
+        .join('<br>');
+      layer.bindPopup(popupContent);
+    }
+  };
+
+  // Find the drawing layer from the single state source
+  const drawingLayer = layers.find(l => l.id === 'default-drawing-layer');
+
+  const handleExportDrawnShapes = async () => {
+    const drawingLayer = layers.find(l => l.id === 'default-drawing-layer');
+    if (!drawingLayer || !drawingLayer.features || drawingLayer.features.length === 0) {
+      alert('لا توجد أشكال مرسومة للتصدير');
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      // Show initial progress
+      console.log('Starting export process...');
+      
+      // Group features by type
+      const featuresByType = {
+        Point: drawingLayer.features.filter(f => f.geometry?.type === 'Point').length,
+        LineString: drawingLayer.features.filter(f => f.geometry?.type === 'LineString').length,
+        Polygon: drawingLayer.features.filter(f => f.geometry?.type === 'Polygon').length
+      };
+
+      const availableTypes = Object.keys(featuresByType).filter(type => featuresByType[type] > 0);
+      
+      if (availableTypes.length === 0) {
+        alert('لا توجد أشكال صالحة للتصدير');
+        return;
       }
-      console.error(`Unknown layer type for layer ${layer.name}: ${layer.type}`);
-      return null;
-    });
-  }, [processedLayers, pointToLayer]);
+
+      // Create export options message
+      let exportMessage = 'اختر نوع الأشكال للتصدير:\n\n';
+      availableTypes.forEach(type => {
+        const count = featuresByType[type];
+        const arabicType = type === 'Point' ? 'نقاط' : type === 'LineString' ? 'خطوط' : 'مضلعات';
+        exportMessage += `${arabicType}: ${count} شكل\n`;
+      });
+      exportMessage += '\nاضغط "موافق" لتصدير جميع الأنواع\nاضغط "إلغاء" لتصدير النوع الأول فقط';
+
+      const exportAll = window.confirm(exportMessage);
+      
+      let featuresToExport = [];
+      let exportType = 'all';
+      
+      if (exportAll) {
+        // Export all features
+        featuresToExport = drawingLayer.features;
+        exportType = 'all_types';
+      } else {
+        // Export only the first available type
+        const firstType = availableTypes[0];
+        featuresToExport = drawingLayer.features.filter(f => f.geometry?.type === firstType);
+        exportType = firstType.toLowerCase();
+      }
+
+      if (featuresToExport.length === 0) {
+        alert('لا توجد أشكال للتصدير');
+        return;
+      }
+
+      // Ask user if they want to remember this preference
+      const currentPreference = getExportPreference();
+      if (currentPreference === 'ask') {
+        const rememberChoice = window.confirm(
+          'هل تريد تذكر هذا الاختيار للمرة القادمة؟\n\n' +
+          'اضغط "موافق" لتذكر الاختيار\n' +
+          'اضغط "إلغاء" للاستمرار في السؤال في كل مرة'
+        );
+        if (rememberChoice) {
+          saveExportPreference(exportAll ? 'all' : 'first');
+        }
+      } else if (currentPreference === 'all') {
+        featuresToExport = drawingLayer.features;
+        exportType = 'all_types';
+      } else if (currentPreference === 'first') {
+        const firstType = availableTypes[0];
+        featuresToExport = drawingLayer.features.filter(f => f.geometry?.type === firstType);
+        exportType = firstType.toLowerCase();
+      }
+
+      // Final confirmation with details
+      const arabicTypeDisplay = exportType === 'all_types' ? 'جميع الأنواع' : 
+                              exportType === 'point' ? 'نقاط' :
+                              exportType === 'linestring' ? 'خطوط' : 'مضلعات';
+      const finalConfirm = window.confirm(
+        `تأكيد التصدير:\n\n` +
+        `سيتم تصدير ${featuresToExport.length} شكل من نوع ${arabicTypeDisplay}\n` +
+        `سيتم تحميل ملف ZIP يحتوي على ملفات Shapefile:\n` +
+        `• .shp - ملف الشكل الرئيسي\n` +
+        `• .shx - ملف فهرس الشكل\n` +
+        `• .dbf - ملف قاعدة البيانات\n` +
+        `• .prj - ملف الإسقاط (EPSG:4326)\n\n` +
+        `هل تريد المتابعة؟`
+      );
+
+      if (!finalConfirm) {
+        return;
+      }
+
+      console.log('User confirmed export, preparing data...');
+
+      const geojsonData = {
+        type: 'FeatureCollection',
+        features: featuresToExport
+      };
+
+      console.log('Sending data to server for conversion...');
+
+      const response = await fetch('http://localhost:8000/export-to-shapefile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          geojson: geojsonData
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log('Server response received, processing file...');
+
+      // Get the blob from the response
+      const blob = await response.blob();
+      
+      console.log('File processed, preparing download...');
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      const timestamp = new Date().toISOString().slice(0, 10);
+      const arabicTypeName = exportType === 'all_types' ? 'جميع_الأنواع' : 
+                           exportType === 'point' ? 'نقاط' :
+                           exportType === 'linestring' ? 'خطوط' : 'مضلعات';
+      a.download = `drawn_shapes_${arabicTypeName}_${timestamp}.zip`;
+      
+      // Trigger download
+      document.body.appendChild(a);
+      a.click();
+      
+      console.log('Download initiated successfully');
+      
+      // Cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      const fileSize = (blob.size / 1024).toFixed(2); // Convert to KB
+      alert(`تم تصدير ${featuresToExport.length} شكل من نوع ${arabicTypeDisplay} بنجاح!\n\n` +
+            `اسم الملف: ${a.download}\n` +
+            `حجم الملف: ${fileSize} KB\n` +
+            `يحتوي على: ملفات Shapefile (.shp, .shx, .dbf, .prj)`);
+      
+      // Log export statistics
+      console.log('Export Statistics:', {
+        totalFeatures: featuresToExport.length,
+        exportType: exportType,
+        fileSize: `${fileSize} KB`,
+        fileName: a.download,
+        timestamp: new Date().toISOString(),
+        userPreference: getExportPreference()
+      });
+      
+      console.log('Export completed successfully!');
+    } catch (error) {
+      console.error('Error exporting shapes:', error);
+      console.error('Export failed. Details:', {
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
+      alert(`خطأ في تصدير الأشكال: ${error.message}`);
+    } finally {
+      setIsExporting(false);
+      console.log('Export process finished');
+    }
+  };
 
   return (
     <ErrorBoundary>
-      <div className="map-view">
-        {showLayerList && (
-          <LayerList
-            layers={processedLayers}
-            onToggleVisibility={handleToggleVisibility}
-            onZoomToLayer={handleZoomToLayer}
-            onDeleteLayer={handleDeleteLayer}
-            onChangeLayerColor={handleChangeLayerColor}
-            onChangeLayerOpacity={handleChangeLayerOpacity}
-            showBaseMap={showBaseMap}
-            onToggleBaseMap={handleToggleBaseMap}
-            addLayerButton={<AddLayerButton onAddLayer={handleAddLayer} />}
-          />
-        )}
-        {showToolbox && (
-          <Toolbox
-            onToolSelect={() => {}}
-            layers={processedLayers}
-            onToolComplete={handleAddLayer}
-          />
-        )}
+      <div className={`map-view`}>
         <div className="toggle-buttons toggle-buttons-left">
           <button
             className="toggle-button"
@@ -861,18 +1048,68 @@ const MapView = () => {
             onClick={() => setShowToolbox((prev) => !prev)}
             title={showToolbox ? 'إخفاء الأدوات' : 'إظهار الأدوات'}
           >
-            <FaLayerGroup />
+            <FaCog />
           </button>
         </div>
+        <div className="export-button-container">
+          <button
+            className={`toggle-button export-button ${(!drawingLayer || !drawingLayer.features || drawingLayer.features.length === 0 || isExporting) ? 'disabled' : ''} ${isExporting ? 'loading' : ''}`}
+            onClick={handleExportDrawnShapes}
+            title={(() => {
+                if (isExporting) {
+                    return 'جاري التصدير...';
+                }
+                if (!drawingLayer || !drawingLayer.features || drawingLayer.features.length === 0) {
+                    return 'لا توجد أشكال مرسومة للتصدير';
+                }
+                const featuresByType = {
+                    Point: drawingLayer.features.filter(f => f.geometry?.type === 'Point').length,
+                    LineString: drawingLayer.features.filter(f => f.geometry?.type === 'LineString').length,
+                    Polygon: drawingLayer.features.filter(f => f.geometry?.type === 'Polygon').length
+                };
+                const details = [];
+                if (featuresByType.Point > 0) details.push(`${featuresByType.Point} نقطة`);
+                if (featuresByType.LineString > 0) details.push(`${featuresByType.LineString} خط`);
+                if (featuresByType.Polygon > 0) details.push(`${featuresByType.Polygon} مضلع`);
+                
+                const preference = getExportPreference();
+                const preferenceText = preference === 'all' ? ' (تفضيل: جميع الأنواع)' : 
+                                     preference === 'first' ? ' (تفضيل: النوع الأول)' : 
+                                     ' (تفضيل: السؤال دائماً)';
+                
+                return `تصدير الأشكال المرسومة كملف Shapefile\n${details.join('، ')}${preferenceText}`;
+            })()}
+            disabled={!drawingLayer || !drawingLayer.features || drawingLayer.features.length === 0 || isExporting}
+          >
+            {isExporting ? '...' : <FaDownload />}
+          </button>
+        </div>
+        {showLayerList && (
+          <LayerList
+            layers={processedLayers.filter(l => l.id !== 'default-drawing-layer')}
+            onToggleVisibility={handleToggleVisibility}
+            onZoomToLayer={handleZoomToLayer}
+            onDeleteLayer={handleDeleteLayer}
+            onChangeLayerColor={handleChangeLayerColor}
+            onChangeLayerOpacity={handleChangeLayerOpacity}
+            showBaseMap={showBaseMap}
+            onToggleBaseMap={handleToggleBaseMap}
+            addLayerButton={<AddLayerButton onAddLayer={handleAddLayer} />}
+            onShowLayerFeatures={handleShowLayerFeatures}
+          />
+        )}
+        {showToolbox && (
+          <Toolbox
+            onToolSelect={() => {}}
+            layers={processedLayers.filter(l => l.id !== 'default-drawing-layer')}
+            onToolComplete={handleAddLayer}
+          />
+        )}
         <MapContainer
           center={[31.70457386017354, 33.04699]}
           zoom={8}
           style={{ height: '100%', width: '100%' }}
-          whenReady={(map) => {
-            console.log('MapContainer fully ready');
-            mapRef.current = map.target;
-            setIsMapReady(true);
-          }}
+          ref={mapRef}
         >
           {showBaseMap && (
             <TileLayer
@@ -880,9 +1117,46 @@ const MapView = () => {
               attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             />
           )}
-          {memoizedLayers}
-          <FitBounds layers={processedLayers} />
+          {layers.map(layer => {
+            if (layer.id === 'default-drawing-layer' || !layer.visible) {
+              return null;
+            }
+            if (layer.type === 'vector' && layer.data) {
+              return (
+                <GeoJSON
+                  key={layer.id}
+                  data={JSON.parse(layer.data)}
+                  style={{ color: layer.color || 'blue' }}
+                  onEachFeature={onEachFeature}
+                />
+              );
+            }
+            if (layer.type === 'raster' && layer.data && layer.bounds) {
+              return (
+                <ImageOverlay
+                  key={layer.id}
+                  url={layer.data}
+                  bounds={layer.bounds}
+                  opacity={layer.opacity}
+                />
+              );
+            }
+            return null;
+          })}
+
+          <DrawControl
+            onCreated={handleShapeCreated}
+            onEdited={handleFeaturesEdited}
+            onDeleted={handleFeaturesDeleted}
+            drawingLayer={drawingLayer}
+          />
         </MapContainer>
+        <FeatureListModal
+          isOpen={featureListModalOpen}
+          onClose={() => setFeatureListModalOpen(false)}
+          layer={layerForModal}
+          onDeleteFeature={handleDeleteFeature}
+        />
       </div>
     </ErrorBoundary>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ResizableBox } from 'react-resizable';
+import DrawingLayerManager from './DrawingLayerManager';
 import './LayerList.css';
 
 const LayerList = ({
@@ -13,6 +14,15 @@ const LayerList = ({
   showBaseMap,
   onToggleBaseMap,
   addLayerButton,
+  drawingLayers = [],
+  activeDrawingLayerId,
+  onSetActiveDrawingLayer,
+  onShowLayerFeatures,
+  onDeleteDrawingLayer,
+  onSaveDrawingLayer,
+  onAddDrawingLayerClick,
+  isDrawing,
+  showAddDrawingLayerButton
 }) => {
   const [width, setWidth] = useState(250);
 
@@ -65,7 +75,26 @@ const LayerList = ({
     >
       <div className="layer-list" style={{ width: `${width}px` }}>
         <h3>الطبقات</h3>
+        
         <div className="add-layer-button-container">{addLayerButton}</div>
+        
+        {showAddDrawingLayerButton && (
+          <button className="btn btn-primary" style={{marginBottom: '10px', width: '100%'}} onClick={() => onAddDrawingLayerClick('point')}>
+            + إضافة طبقة رسم
+          </button>
+        )}
+
+        {drawingLayers.length > 0 && (
+          <DrawingLayerManager
+            drawingLayers={drawingLayers}
+            activeLayerId={activeDrawingLayerId}
+            onSetActiveLayer={onSetActiveDrawingLayer}
+            onShowLayerFeatures={onShowLayerFeatures}
+            onDeleteDrawingLayer={onDeleteDrawingLayer}
+            onSaveLayer={onSaveDrawingLayer}
+          />
+        )}
+
         <div className="base-map-toggle">
           <label>
             <input type="checkbox" checked={showBaseMap} onChange={onToggleBaseMap} />
