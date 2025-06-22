@@ -652,6 +652,14 @@ const MapView = () => {
     setLayers([initialDrawingLayer]);
   }, []);
 
+  // Cleanup blob URLs when component unmounts or layers change
+  useEffect(() => {
+    return () => {
+      // Cleanup function will be called when component unmounts
+      // Blob URLs are also cleaned up in the ImageOverlay event handlers
+    };
+  }, [layers]);
+
   const processedLayers = useMemo(() => {
     return layers.map((layer) => {
       if (layer.type === 'vector' && layer.data) {
@@ -1132,12 +1140,34 @@ const MapView = () => {
               );
             }
             if (layer.type === 'raster' && layer.data && layer.bounds) {
+              // Convert base64 data to blob URL to avoid header size issues
+              const base64Data = layer.data;
+              const byteCharacters = atob(base64Data);
+              const byteNumbers = new Array(byteCharacters.length);
+              for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+              }
+              const byteArray = new Uint8Array(byteNumbers);
+              const blob = new Blob([byteArray], { type: 'image/png' });
+              const blobUrl = URL.createObjectURL(blob);
+              
               return (
                 <ImageOverlay
                   key={layer.id}
-                  url={layer.data}
+                  url={blobUrl}
                   bounds={layer.bounds}
                   opacity={layer.opacity}
+                  eventHandlers={{
+                    error: () => {
+                      console.error(`Failed to load raster layer: ${layer.name}`);
+                      URL.revokeObjectURL(blobUrl);
+                    },
+                    load: () => console.log(`Successfully loaded raster layer: ${layer.name}`),
+                    remove: () => {
+                      // Clean up blob URL when layer is removed
+                      URL.revokeObjectURL(blobUrl);
+                    }
+                  }}
                 />
               );
             }

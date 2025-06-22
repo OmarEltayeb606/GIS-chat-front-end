@@ -40,7 +40,7 @@ const AddLayerButton = ({ onAddLayer }) => {
 
     const formData = new FormData();
     for (const file of files) {
-      formData.append('file', file);
+      formData.append('files', file);
     }
 
     // Log FormData entries
